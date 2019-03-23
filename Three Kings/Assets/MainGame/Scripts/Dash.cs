@@ -8,10 +8,13 @@ public class Dash : Ability
     public float dashSpeed = 21f;
     public float dashTime = 0.25f;
     public AnimationCurve dashCurve;
+    public float interTime = 0.2f;
     public bool isDashing;
     [Space]
     public float maxDashCharge = 1f;
     public float currentDashCharge;
+
+    private float interCounter;
 
     [Header("References:")]
     public GameObject dashParticles;
@@ -54,6 +57,11 @@ public class Dash : Ability
     public override void AbilityUpdate()
     {
         base.AbilityUpdate();
+
+        if(interCounter > 0)
+        {
+            interCounter -= Time.deltaTime;
+        }
     }
 
     public override void AbilityFixedUpdate()
@@ -64,7 +72,7 @@ public class Dash : Ability
 
     protected override void CastAbilityImpl()
     {
-        PDashInitiate();
+        PDashInitInput();
     }
 
     public override void Cancel()
@@ -77,9 +85,9 @@ public class Dash : Ability
         }
     }
 
-    private void PDashInitiate()
+    private void PDashInitInput()
     {
-        if (currentDashCharge > 0)
+        if (currentDashCharge > 0 && interCounter <= 0)
         {
             Vector2 dashVec = Vector2.right;
 
@@ -101,11 +109,11 @@ public class Dash : Ability
 
             currentDashCharge -= 1;
 
-            DashInitiate2(dashVec.normalized, dashSpeed, dashTime);
+            DashInitiate(dashVec.normalized, dashSpeed, dashTime, true);
         }
     }
 
-    public void DashInitiate2(Vector2 dashVector, float speed, float time)
+    public void DashInitiate(Vector2 dashVector, float speed, float time, bool doLock)
     {
         if (dashVector.x > 0 && !aEntity.isLookingRight)
         {
@@ -117,24 +125,24 @@ public class Dash : Ability
             aEntity.EntityFlip();
             aEntity.FlipControlLockCounter = 0;
         }
-        /*
-        if (isDashing)
-        {
-            PDashCancel();
-        }
-        */
+
         if (dashCoroutine != null)
         {
             StopCoroutine(dashCoroutine);
         }
 
-        dashCoroutine = StartCoroutine(DashMain(dashVector, speed, time));
+        dashCoroutine = StartCoroutine(DashMain(dashVector, speed, time, doLock));
     }
 
     Coroutine dashCoroutine;
 
-    private IEnumerator DashMain(Vector2 dashVector, float dSpeed, float dTime)
+    private IEnumerator DashMain(Vector2 dashVector, float dSpeed, float dTime, bool doLock)
     {
+        if (!doLock)
+        {
+            interCounter = 0;
+        }
+
         aEntity.EntityControlTypeSet(LivingEntity.ControlType.OtherControl, true);
         aEntity.entityRB2D.gravityScale = 0;
 
@@ -158,7 +166,11 @@ public class Dash : Ability
 
         aEntity.entityRB2D.gravityScale = 1;
         aEntity.EntityControlTypeSet(LivingEntity.ControlType.CanControl, false);
-        //aEntity.entityRB2D.velocity = new Vector2(aEntity.entityRB2D.velocity.x, 0);
+
+        if (doLock)
+        {
+            interCounter = interTime;
+        }
 
         isDashing = false;
         if (dashVector.x > 0 && dashVector.y < 0.75f)
@@ -184,6 +196,8 @@ public class Dash : Ability
 
         aEntity.EntityControlTypeSet(LivingEntity.ControlType.CanControl, false);
 
+        interCounter = 0;
+
         isDashing = false;
         GroundSets();
     }
@@ -194,5 +208,10 @@ public class Dash : Ability
         {
             currentDashCharge = maxDashCharge;
         }
+    }
+
+    public void ApplyLock()
+    {
+        interCounter = interTime;
     }
 }

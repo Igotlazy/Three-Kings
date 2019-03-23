@@ -9,8 +9,10 @@ public class LivingEntity : MonoBehaviour
 {
     [Header("ENTITY")]
     [Header("Movement:")]
-    [SerializeField] protected float baseInputSpeed;
-    [SerializeField] private float totalVelocity;
+    public AdvancedFloat baseInputSpeed = new AdvancedFloat();
+    public AdvancedFloat knockbackSpeed = new AdvancedFloat();
+    public AdvancedFloat outsideSourceSpeed = new AdvancedFloat();
+    [SerializeField] private float totalXVelocity;
     public float inputSensitivity = 3f;
     public float inputGravity = 3f;
     public float inputDead = 0.001f;
@@ -58,7 +60,6 @@ public class LivingEntity : MonoBehaviour
     
 
     public float groundRayLength = 0.12f;
-    public float outsideVelocitySource;
     protected LayerMask groundMask;
 
     public enum ControlType
@@ -141,8 +142,8 @@ public class LivingEntity : MonoBehaviour
         }
       
         
-        totalVelocity = (baseInputSpeed * knockbackControl.baseInputMultiplier) + (knockbackControl.knockbackIntensity * knockbackControl.knockbackMultiplier) + outsideVelocitySource;
-        entityRB2D.velocity = new Vector2(totalVelocity, entityRB2D.velocity.y);
+        totalXVelocity = (baseInputSpeed.Value * knockbackControl.baseInputMultiplier) + (knockbackControl.knockbackIntensity * knockbackControl.knockbackMultiplier) + outsideSourceSpeed.Value;
+        entityRB2D.velocity = new Vector2(totalXVelocity, entityRB2D.velocity.y);
 
         //Vertical Movement
         float yVel = Mathf.Clamp(entityRB2D.velocity.y, currentTerminalVelocity, 100.0f);
@@ -228,11 +229,11 @@ public class LivingEntity : MonoBehaviour
         }
         else
         {
-            if (baseInputSpeed < 0.0f && isLookingRight == true)
+            if (baseInputSpeed.Value < 0.0f && isLookingRight == true)
             {
                 EntityFlip();
             }
-            else if (baseInputSpeed > 0.0f && isLookingRight == false)
+            else if (baseInputSpeed.Value > 0.0f && isLookingRight == false)
             {
                 EntityFlip();
             }

@@ -13,7 +13,7 @@ public class Player : LivingEntity
     public float InputMultiplier = 6.5f;
 
     [Header("References:")]
-    public Collider2D hurtBox;
+    public BoxCollider2D hurtBox;
     public SpriteRenderer sprite;
     [HideInInspector] public PlayerHealth swatheHealth;
     [HideInInspector] public PlayerEnergy swatheEnergy;
@@ -46,6 +46,8 @@ public class Player : LivingEntity
             Destroy(this.gameObject);
         }
 
+        hurtBox.size = new Vector3(entityBC2D.size.x - 0.025f, hurtBox.size.y);
+
         swatheHealth = (PlayerHealth)healthControl;
         swatheEnergy = GetComponent<PlayerEnergy>();
 
@@ -73,11 +75,11 @@ public class Player : LivingEntity
         //Get Input Axis [Horizontal Movement]
         if (currControlType == ControlType.CanControl)
         {
-            baseInputSpeed = InputSmoothing("Horizontal") * InputMultiplier;
+            baseInputSpeed.BaseValue = InputSmoothing("Horizontal") * InputMultiplier;
         }
         else
         {
-            baseInputSpeed = 0;
+            baseInputSpeed.BaseValue = 0;
         }
 
         if (currControlType == ControlType.CanControl)
@@ -266,6 +268,7 @@ public class Player : LivingEntity
         jumpAbility.isJumping = false;
 
         dashAbility.Cancel();
+        dashAbility.ApplyLock();
     }
     private bool WallJumpRestric()
     {

@@ -16,10 +16,12 @@ public class SceneTransitioner : MonoBehaviour
     Vector3 moveVector;
     BoxCollider2D boxCollider;
 
-    bool exitPlayer;
+    FloatModifier controller;
+
 
     private void Awake()
     {
+        controller = new FloatModifier(0, FloatModifier.FloatModType.Flat, this);
         boxCollider = GetComponent<BoxCollider2D>();
         PositionExit();
         OrientMoveVector();
@@ -30,23 +32,27 @@ public class SceneTransitioner : MonoBehaviour
         GameController.instance.sceneTransitionManager.OnNewSceneEvent += LoadToManager;
     }
 
-    private void Update()
-    {
-        if (exitPlayer)
-        {
-            Player.instance.outsideVelocitySource = Player.instance.InputMultiplier * moveVector.x;
-        }
-    }
-
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.gameObject == Player.instance.gameObject)
         {
             GameController.instance.sceneTransitionManager.TransitionerSceneChange(areaCode);
             boxCollider.enabled = false;
-            exitPlayer = true;
-            Player.instance.healthControl.undamagable = true;
+
+            Player.instance.hurtBox.enabled = false;
             Player.instance.EntityControlTypeSet(LivingEntity.ControlType.CannotControl, true);
+
+            controller.value = Player.instance.InputMultiplier * moveVector.x;
+            Player.instance.outsideSourceSpeed.AddSingleModifier(controller);
+
+            if (!Player.instance.isLookingRight && moveVector.Equals(Vector3.right))
+            {
+                Player.instance.EntityFlip();
+            }
+            if (Player.instance.isLookingRight && moveVector.Equals(Vector3.left))
+            {
+                Player.instance.EntityFlip();
+            }
         }
     }
 
@@ -102,11 +108,14 @@ public class SceneTransitioner : MonoBehaviour
             Player.instance.EntityFlip();
         }
 
-        Player.instance.outsideVelocitySource = 0;
+        //Player.instance.outsideVelocitySource = 0;
+        Player.instance.outsideSourceSpeed.RemoveAllModifiers();
         yield return new WaitForSeconds(1);
 
         Player.instance.LockSmoothing = true;
-        Player.instance.outsideVelocitySource = Player.instance.InputMultiplier * -moveVector.x;
+        //Player.instance.outsideVelocitySource = Player.instance.InputMultiplier * -moveVector.x;
+        controller.value = Player.instance.InputMultiplier * -moveVector.x;
+        Player.instance.outsideSourceSpeed.AddSingleModifier(controller);
 
         float enterTimer = 0;
         while (enterTimer < 0.625f)
@@ -115,8 +124,9 @@ public class SceneTransitioner : MonoBehaviour
             yield return null;
         }
 
-        Player.instance.outsideVelocitySource = 0;
-        Player.instance.healthControl.undamagable = false;
+        //Player.instance.outsideVelocitySource = 0;
+        Player.instance.outsideSourceSpeed.RemoveAllModifiers();
+        Player.instance.hurtBox.enabled = true;
         Player.instance.LockSmoothing = false;
         Player.instance.EntityControlTypeSet(LivingEntity.ControlType.CanControl, true);
 
