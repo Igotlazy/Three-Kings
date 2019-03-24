@@ -4911,7 +4911,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 0.6, y: 1.4}
+  m_Size: {x: 0.575, y: 1.4}
   m_EdgeRadius: 0
 --- !u!1 &8303080088518757935
 GameObject:
@@ -5049,18 +5049,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1e568596f5866814e93d8adb1b1da29c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  baseInputSpeed: 0
-  totalVelocity: 0
+  baseInputSpeed:
+    BaseValue: 0
+    _value: 0
+  knockbackSpeed:
+    BaseValue: 0
+    _value: 0
+  outsideSourceSpeed:
+    BaseValue: 0
+    _value: 0
+  totalXVelocity: 0
   inputSensitivity: 6
   inputGravity: 10
   inputDead: 0.001
   smoothingValue: 0
   healthControl: {fileID: 0}
   knockbackControl: {fileID: 0}
-  originalTerminalVelocity: -20
+  originalTerminalVelocity: -18.5
   currentTerminalVelocity: 0
-  groundRayLength: 0.12
-  outsideVelocitySource: 0
+  groundRayLength: 0.08
   currControlType: 0
   isLookingRight: 0
   isGrounded: 0
@@ -5093,9 +5100,10 @@ MonoBehaviour:
   isKnockingBack: 0
   isHardKnocking: 0
   isSoftKnocking: 0
-  baseInputMultiplier: 1
-  knockbackMultiplier: 0
-  knockbackIntensity: 0
+  inputReducer: 1
+  knockbackX:
+    BaseValue: 0
+    _value: 0
 --- !u!1 &8303747959718367297
 GameObject:
   m_ObjectHideFlags: 0
@@ -5404,9 +5412,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   aEntity: {fileID: 0}
-  abilityActivated: 0
+  abilityActivated: 1
   wallJumpForce: {x: 8, y: 15.5}
-  wallJumpRayLength: 0.6
+  wallJumpRayLength: 0.2
   wallFallSpeed: -5
   sensorGap: 0.3
   wallJumpMask:

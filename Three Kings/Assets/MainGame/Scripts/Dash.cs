@@ -87,13 +87,21 @@ public class Dash : Ability
 
     private void PDashInitInput()
     {
-        if (currentDashCharge > 0 && interCounter <= 0)
+        if (currentDashCharge > 0 && !isDashing && interCounter <= 0)
         {
             Vector2 dashVec = Vector2.right;
 
-            if (Input.GetAxisRaw("Vertical") > 0 || Input.GetAxisRaw("Horizontal") != 0)
+            if (Input.GetAxisRaw("Vertical") > 0 /*|| Input.GetAxisRaw("Horizontal") != 0*/)
             {
-                dashVec = new Vector2(Input.GetAxisRaw("Horizontal"), Mathf.Clamp(Input.GetAxisRaw("Vertical"), 0, 1)).normalized;
+                //dashVec = new Vector2(Input.GetAxisRaw("Horizontal"), Mathf.Clamp(Input.GetAxisRaw("Vertical"), 0, 1)).normalized;
+                dashVec = Vector2.up;
+            }
+            else if (Input.GetAxisRaw("Horizontal") != 0)
+            {
+                if(Input.GetAxisRaw("Horizontal") < 0)
+                {
+                    dashVec = Vector2.left; //Right is already set.
+                }
             }
             else
             {

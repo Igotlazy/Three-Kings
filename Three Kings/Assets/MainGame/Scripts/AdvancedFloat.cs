@@ -142,13 +142,13 @@ public class AdvancedFloat
 
                 if (i + 1 >= floatModifiers.Count || floatModifiers[i + 1].type != FloatModifier.FloatModType.PercentAdd)
                 {
-                    finalValue *= 1 + sumPercentAdd;
+                    finalValue *= sumPercentAdd; //If you want to do increases, it needs to start at 1.
                     sumPercentAdd = 0;
                 }
             }
             else if (mod.type == FloatModifier.FloatModType.PercentMult)
             {
-                finalValue *= 1 + mod.value;
+                finalValue *= mod.value; //If you want to do increases, it needs to start at 1.
             }
         }
 

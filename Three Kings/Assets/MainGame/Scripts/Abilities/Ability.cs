@@ -19,16 +19,16 @@ public abstract class Ability : MonoBehaviour
             abilityActivated = value;
         }
     }
-    private bool canCast;
-    public virtual bool CanCast
+    private bool canActivate;
+    public virtual bool CanActivate
     {
         get
         {
-            return canCast;
+            return canActivate;
         }
         set
         {
-            canCast = value;
+            canActivate = value;
         }
     }
 
@@ -37,7 +37,7 @@ public abstract class Ability : MonoBehaviour
 
     protected virtual void Awake()
     {
-        CanCast = true;
+        CanActivate = true;
 
         LivingEntity entity = transform.parent.GetComponent<LivingEntity>();
         if (entity != null)
@@ -68,7 +68,7 @@ public abstract class Ability : MonoBehaviour
 
     public virtual void CastAbility()
     {
-        if (AbilityActivated && CanCast && (castRestriction?.Invoke() ?? true))
+        if (AbilityActivated && CanActivate && (castRestriction?.Invoke() ?? true))
         {
             onAbilityCast?.Invoke();
             CastAbilityImpl();

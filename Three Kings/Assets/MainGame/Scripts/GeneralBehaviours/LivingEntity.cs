@@ -49,6 +49,7 @@ public class LivingEntity : MonoBehaviour
         }
 
     }
+    public bool lockFlip;
 
     [HideInInspector] public HealthControl healthControl;
     [HideInInspector] public KnockbackControl knockbackControl;
@@ -97,6 +98,7 @@ public class LivingEntity : MonoBehaviour
         healthControl.onHitDeath += PhysicsCleanUpOnDeath;
 
         knockbackControl = GetComponent<KnockbackControl>();
+        waitForStopped = new WaitUntil(() => !isStopped); 
 
         currentTerminalVelocity = originalTerminalVelocity;
     }
@@ -109,6 +111,10 @@ public class LivingEntity : MonoBehaviour
 
     protected virtual void Update()
     {
+        if (Input.GetKeyDown(KeyCode.I))
+        {
+            IsStopped = !IsStopped;
+        }
         //Flipping 
         EntityFlipControl();
     }
@@ -142,7 +148,8 @@ public class LivingEntity : MonoBehaviour
         }
       
         
-        totalXVelocity = (baseInputSpeed.Value * knockbackControl.baseInputMultiplier) + (knockbackControl.knockbackIntensity * knockbackControl.knockbackMultiplier) + outsideSourceSpeed.Value;
+        //totalXVelocity = (baseInputSpeed.Value * knockbackControl.baseInputMultiplier) + (knockbackControl.knockbackIntensity * knockbackControl.knockbackMultiplier) + outsideSourceSpeed.Value;
+        totalXVelocity = ((baseInputSpeed.Value + outsideSourceSpeed.Value) * knockbackControl.inputReducer) + knockbackControl.knockbackX.Value;
         entityRB2D.velocity = new Vector2(totalXVelocity, entityRB2D.velocity.y);
 
         //Vertical Movement
@@ -243,10 +250,14 @@ public class LivingEntity : MonoBehaviour
 
     public void EntityFlip()
     {
-        isLookingRight = !isLookingRight;
-        Vector2 localScale = transform.localScale;
-        localScale.x *= -1;
-        transform.localScale = localScale;
+        if (!lockFlip)
+        {
+            Debug.Log("Flip");
+            isLookingRight = !isLookingRight;
+            Vector2 localScale = transform.localScale;
+            localScale.x *= -1;
+            transform.localScale = localScale;
+        }
     }
 
 
@@ -355,7 +366,7 @@ public class LivingEntity : MonoBehaviour
     }
 
 
-    protected IEnumerator HitStopPause(float duration, bool isFixed, bool isRealTime)
+    protected IEnumerator WaitForSecondsHitStop(float duration, bool isFixed, bool isRealTime)
     {
         float time = 0;
         while(time < duration)
@@ -390,16 +401,17 @@ public class LivingEntity : MonoBehaviour
         {
             if (value)
             {
-                EntityControlTypeSet(ControlType.OtherControl, true, hitStopDuration);
+                oldType = entityRB2D.bodyType;
                 entityRB2D.bodyType = RigidbodyType2D.Kinematic;
+
                 entityRB2D.gravityScale = 0;
+
                 oldvel = entityRB2D.velocity;
                 entityRB2D.velocity = Vector2.zero;
             }
-            if(value == true && !isStopped)
+            if(!value && isStopped)
             {
-                EntityControlTypeSet(ControlType.CanControl, true);
-                entityRB2D.bodyType = RigidbodyType2D.Dynamic;
+                entityRB2D.bodyType = oldType;
                 entityRB2D.gravityScale = 1;
                 entityRB2D.velocity = oldvel;
             }
@@ -408,6 +420,7 @@ public class LivingEntity : MonoBehaviour
         }
     }
     protected WaitForFixedUpdate waitForFix = new WaitForFixedUpdate();
+    protected WaitUntil waitForStopped;
 
     public void HitStop()
     {
@@ -417,6 +430,7 @@ public class LivingEntity : MonoBehaviour
     float hitStopDuration = 2f;
     float hitStopTimer = 5;
     Vector2 oldvel = Vector2.zero;
+    RigidbodyType2D oldType;
 
 
 

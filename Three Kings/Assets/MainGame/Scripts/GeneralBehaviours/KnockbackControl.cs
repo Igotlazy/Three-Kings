@@ -11,15 +11,20 @@ public class KnockbackControl : MonoBehaviour
     public bool isSoftKnocking;
     private Rigidbody2D entityRB2D;
 
-    public float baseInputMultiplier = 1;
-    public float knockbackMultiplier;
-    public float knockbackIntensity;
+    public float inputReducer = 1;
+    //public float knockbackMultiplier;
+    //public float knockbackIntensity;
+
+    public AdvancedFloat knockbackX;
+    private FloatModifier xMod;
 
 
 
     private void Start()
     {
         entityRB2D = GetComponent<Rigidbody2D>();
+        xMod = new FloatModifier(0, FloatModifier.FloatModType.PercentMult, this);
+        knockbackX.AddSingleModifier(xMod);
     }
 
     public virtual void StartKnockback(Vector2 knock, float xInitialDur, float xSubDur)
@@ -49,10 +54,11 @@ public class KnockbackControl : MonoBehaviour
         {
             isHardKnocking = true;
 
-            baseInputMultiplier = 0;
-            knockbackMultiplier = 1;
+            inputReducer = 0;
+            xMod.value = 1;
 
-            knockbackIntensity = knock.x;
+            knockbackX.BaseValue = knock.x;
+
             while(internalTime <= initialDur)
             {
                 internalTime += Time.fixedDeltaTime;
@@ -61,23 +67,23 @@ public class KnockbackControl : MonoBehaviour
 
             isHardKnocking = false;
 
-            while (!(baseInputMultiplier == 1 && knockbackMultiplier == 0))
+            while (!(inputReducer == 1 && xMod.value == 0))
             {
                 if (internalTime <= (initialDur + subDur))
                 {
                     isSoftKnocking = true;
                     knockbackSubLerpTime = (internalTime - initialDur) / subDur;
-                    baseInputMultiplier = Mathf.Lerp(0f, 1f, knockbackSubLerpTime);
-                    knockbackMultiplier = Mathf.Lerp(1f, 0f, knockbackSubLerpTime);
+                    inputReducer = Mathf.Lerp(0f, 1f, knockbackSubLerpTime);
+                    xMod.value = Mathf.Lerp(1f, 0f, knockbackSubLerpTime);
 
                     internalTime += Time.fixedDeltaTime;
                     yield return waitForFix;
                 }
                 else
                 {
-                    baseInputMultiplier = 1;
-                    knockbackMultiplier = 0;
-                    knockbackIntensity = 0;
+                    inputReducer = 1;
+                    knockbackX.BaseValue = 0;
+                    xMod.value = 0;
                     isSoftKnocking = false;
                 }
             }
@@ -91,9 +97,9 @@ public class KnockbackControl : MonoBehaviour
         if (lastKnockback != null)
         {
             StopCoroutine(lastKnockback);
-            baseInputMultiplier = 1;
-            knockbackMultiplier = 0;
-            knockbackIntensity = 0;
+            inputReducer = 1;
+            knockbackX.BaseValue = 0;
+            xMod.value = 0;
 
             isSoftKnocking = false;
             isHardKnocking = false;

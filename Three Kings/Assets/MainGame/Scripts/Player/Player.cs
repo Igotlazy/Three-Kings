@@ -139,7 +139,7 @@ public class Player : LivingEntity
             //Slash
             if (Input.GetButtonDown("Slash"))
             {
-                if (!vaultAbility.CanCast)
+                if (!vaultAbility.CanActivate)
                 {
                     slashAbility.CastAbility();
                 }
@@ -187,10 +187,11 @@ public class Player : LivingEntity
 
         //Interactions
         jumpAbility.castRestriction += JumpRestric;
+        jumpAbility.onRegularJump += OnRegularJump;
 
         dashAbility.onAbilityCast += OnDash;
 
-        wallJumpAbility.onWallCling += onWallCling;
+        wallJumpAbility.onWallCling += OnWallCling;
         wallJumpAbility.onAbilityCast += OnWallJump;
         wallJumpAbility.castRestriction += WallJumpRestric;
 
@@ -220,7 +221,7 @@ public class Player : LivingEntity
         glideAbility.Cancel();
         wallJumpAbility.Cancel();
         vaultAbility.Cancel();
-        vaultAbility.CanCast = false;
+        vaultAbility.CanActivate = false;
         base.PhysicsCleanUpOnDeath(attack);
     }
 
@@ -249,7 +250,11 @@ public class Player : LivingEntity
 
     private bool JumpRestric()
     {
-        return wallJumpAbility.CanCast ? false : true;
+        return wallJumpAbility.CanActivate ? false : true;
+    }
+    private void OnRegularJump()
+    {
+        wallJumpAbility.lockOutTimer = 0.15f;
     }
 
 
@@ -259,7 +264,7 @@ public class Player : LivingEntity
     }
 
 
-    private void onWallCling()
+    private void OnWallCling()
     {
         ResetMobility();
     }
@@ -278,7 +283,7 @@ public class Player : LivingEntity
 
     private bool SlashRestrict()
     {
-        return wallJumpAbility.CanCast ? false : true;
+        return wallJumpAbility.CanActivate ? false : true;
     }
     private void OnSlashHit(HealthControl givenHealh)
     {

@@ -45,13 +45,13 @@ public class BasicSlash : Ability
     {
         base.AbilityUpdate();
 
-        if (!CanCast && slashCooldownCounter > 0)
+        if (!CanActivate && slashCooldownCounter > 0)
         {
             slashCooldownCounter -= Time.deltaTime;
             if (slashCooldownCounter <= 0)
             {
                 slashCooldownCounter = 0;
-                CanCast = true;
+                CanActivate = true;
             }
         }
     }
@@ -130,7 +130,7 @@ public class BasicSlash : Ability
         }
 
         slashCooldownCounter = slashCooldownDuration;
-        CanCast = false;
+        CanActivate = false;
 
         return targetsHit;
     }

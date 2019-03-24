@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class Jump : Ability
 {
@@ -15,6 +16,10 @@ public class Jump : Ability
 
     [Header("References:")]
     public GameObject extraJumpParticles;
+
+    public Action onRegularJump;
+    public Action onExtraJump;
+
 
     public override bool AbilityActivated
     {
@@ -75,14 +80,18 @@ public class Jump : Ability
 
     private void PJump()
     {
-        if (aEntity.IsGrounded /*&& [!canWallJump]*/)
+        if (aEntity.IsGrounded)
         {
+            onRegularJump?.Invoke();
+
             aEntity.entityRB2D.velocity = new Vector2(aEntity.entityRB2D.velocity.x, jumpVelocity);
             isJumping = true;
         }
         // Extra Jumps
-        else if (currentExtraJumps > 0 /*&& [!canWallJump]*/)
+        else if (currentExtraJumps > 0)
         {
+            onExtraJump?.Invoke();
+
             aEntity.entityRB2D.velocity = new Vector2(aEntity.entityRB2D.velocity.x, jumpVelocity * extraJumpMultiplier);
             Instantiate(extraJumpParticles, new Vector3(transform.position.x, transform.position.y - aEntity.entityBC2D.bounds.size.y / 2, 0f), Quaternion.identity);
             isJumping = true;

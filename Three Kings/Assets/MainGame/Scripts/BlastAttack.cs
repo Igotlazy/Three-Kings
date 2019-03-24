@@ -28,13 +28,13 @@ public class BlastAttack : Ability
     {
         base.AbilityUpdate();
 
-        if(!CanCast && blastCooldownCounter > 0)
+        if(!CanActivate && blastCooldownCounter > 0)
         {
             blastCooldownCounter -= Time.deltaTime;
             if(blastCooldownCounter <= 0)
             {
                 blastCooldownCounter = 0;
-                CanCast = true;
+                CanActivate = true;
             }
         }
     }
@@ -47,7 +47,7 @@ public class BlastAttack : Ability
     private void PBlastAttack()
     {
         Debug.Log("Are we here");
-        if (CanCast)
+        if (CanActivate)
         {
             spawnedBlastProjectile = Instantiate(blastProjectile, this.transform.position, this.transform.rotation);
             Rigidbody2D blastProjectileRB2D = spawnedBlastProjectile.GetComponent<Rigidbody2D>();
@@ -65,7 +65,7 @@ public class BlastAttack : Ability
             blastProjectileRB2D.velocity = fireVel;
 
             blastCooldownCounter = blastCooldownDuration;
-            CanCast = false;
+            CanActivate = false;
         }
     }
 }

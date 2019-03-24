@@ -34,29 +34,29 @@ public class Vault : Ability
             base.AbilityActivated = value;
             if (AbilityActivated == false)
             {
-                CanCast = false;
+                CanActivate = false;
             }
         }
     }
 
-    public override bool CanCast
+    public override bool CanActivate
     {
         get
         {
-            return base.CanCast;
+            return base.CanActivate;
         }
         set
         {
             if (AbilityActivated)
             {
-                base.CanCast = value;
+                base.CanActivate = value;
             }
             else
             {
-                base.CanCast = false;
+                base.CanActivate = false;
             }
 
-            if (CanCast)
+            if (CanActivate)
             {
                 particles.gameObject.SetActive(true);
             }
@@ -70,7 +70,7 @@ public class Vault : Ability
     protected override void Awake()
     {
         base.Awake();
-        CanCast = false;
+        CanActivate = false;
     }
 
     protected override void Start()
@@ -88,7 +88,7 @@ public class Vault : Ability
     {
         if (AbilityActivated)
         {
-            CanCast = !CanCast;
+            CanActivate = !CanActivate;
         }
     }
 
@@ -99,9 +99,9 @@ public class Vault : Ability
 
     private void PVault()
     {
-        if (basicSlashRef.CanCast)
+        if (basicSlashRef.CanActivate)
         {
-            CanCast = false;
+            CanActivate = false;
             isVaulting = true;
 
             bool willLaunch = false;
