@@ -9,6 +9,8 @@ public class GameController : MonoBehaviour
     public SceneTransitionManager sceneTransitionManager;
     public RespawnManager respawnManager;
 
+    public float fixedTimeStep;
+
     private void Awake()
     {
         if (instance == null)
@@ -21,6 +23,7 @@ public class GameController : MonoBehaviour
             Destroy(this.gameObject);
             Debug.Log("GameController Destroyed");
         }
+        fixedTimeStep = Time.fixedDeltaTime;
     }
 
     void Start()
@@ -64,23 +67,26 @@ public class GameController : MonoBehaviour
         float step = 0;
 
         Time.timeScale = startSlow;
-        Time.fixedDeltaTime = 0.02F * Time.timeScale;
+        Time.fixedDeltaTime = fixedTimeStep * Time.timeScale;
 
         yield return wait;
 
-        while (interTime <= timeToRecover)
+        if(timeToRecover > 0)
         {
-            step = interTime / timeToRecover;
-            Time.timeScale = Mathf.Lerp(startSlow, 1f, step);
-            Time.fixedDeltaTime = 0.02f * Time.timeScale;
+            while (interTime <= timeToRecover)
+            {
+                step = interTime / timeToRecover;
+                Time.timeScale = Mathf.Lerp(startSlow, 1f, step);
+                Time.fixedDeltaTime = fixedTimeStep * Time.timeScale;
 
-            interTime += Time.unscaledDeltaTime;
+                interTime += Time.unscaledDeltaTime;
 
-            yield return null;
+                yield return null;
+            }
         }
 
         Time.timeScale = 1;
-        Time.fixedDeltaTime = 0.02f * Time.timeScale;
+        Time.fixedDeltaTime = fixedTimeStep * Time.timeScale;
     }
 
     public void ReturnToRegularTime()
@@ -91,7 +97,7 @@ public class GameController : MonoBehaviour
         }
 
         Time.timeScale = 1;
-        Time.fixedDeltaTime = 0.02f * Time.timeScale;
+        Time.fixedDeltaTime = fixedTimeStep * Time.timeScale;
     }
 
 

@@ -99,6 +99,27 @@ public class AdvancedFloat
         return false;
     }
 
+    public virtual void PauseAllModifiers()
+    {
+        foreach(FloatModifier mod in floatModifiers)
+        {
+            if (mod.isTimed)
+            {
+                mod.IsPaused = true;
+            }
+        }
+    }
+    public virtual void UnPauseAllModifiers()
+    {
+        foreach (FloatModifier mod in floatModifiers)
+        {
+            if (mod.isTimed)
+            {
+                mod.IsPaused = false;
+            }
+        }
+    }
+
     public virtual void RemoveAllModifiers()
     {
         List<FloatModifier> mods = floatModifiers.ToList();
@@ -134,11 +155,11 @@ public class AdvancedFloat
 
             if (mod.type == FloatModifier.FloatModType.Flat)
             {
-                finalValue += mod.value;
+                finalValue += mod.ModifierValue;
             }
             else if (mod.type == FloatModifier.FloatModType.PercentAdd)
             {
-                sumPercentAdd += mod.value;
+                sumPercentAdd += mod.ModifierValue;
 
                 if (i + 1 >= floatModifiers.Count || floatModifiers[i + 1].type != FloatModifier.FloatModType.PercentAdd)
                 {
@@ -148,7 +169,7 @@ public class AdvancedFloat
             }
             else if (mod.type == FloatModifier.FloatModType.PercentMult)
             {
-                finalValue *= mod.value; //If you want to do increases, it needs to start at 1.
+                finalValue *= mod.ModifierValue; //If you want to do increases, it needs to start at 1.
             }
         }
 

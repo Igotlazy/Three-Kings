@@ -139,6 +139,8 @@ public class BasicSlash : Ability
     {
         if (currSlashTrans == slashSideTrans) //Recoil
         {
+            GameController.instance.TimeScaleSlowDown(0, 0.03f, 0f);
+
             if (currSlashTrans.position.x > transform.position.x)
             {
                 if (aEntity.IsGrounded)
@@ -167,6 +169,7 @@ public class BasicSlash : Ability
     {
         if (currSlashTrans == slashUpTrans && aEntity.entityRB2D.velocity.y > 0)
         {
+            GameController.instance.TimeScaleSlowDown(0, 0.03f, 0f);
             aEntity.entityRB2D.velocity = new Vector2(aEntity.entityRB2D.velocity.x, -2);
         }
     }

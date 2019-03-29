@@ -3,7 +3,21 @@ using UnityEngine;
 [System.Serializable]
 public class FloatModifier
 {
-    public float value;
+    private float modifierValue;
+    public float ModifierValue
+    {
+        get
+        {
+            return modifierValue * multiplier;
+        }
+        set
+        {
+            this.modifierValue = value;
+        }
+    }
+
+    public float multiplier = 1;
+
     public readonly FloatModType type;
     public readonly int order;
     public readonly object source;
@@ -49,7 +63,7 @@ public class FloatModifier
 
     public FloatModifier(float value, FloatModType type, int order, object source, float duration)
     {
-        this.value = value;
+        this.ModifierValue = value;
         this.type = type;
         this.order = order;
         this.source = source;

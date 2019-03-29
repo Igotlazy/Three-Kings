@@ -42,7 +42,7 @@ public class SceneTransitioner : MonoBehaviour
             Player.instance.hurtBox.enabled = false;
             Player.instance.EntityControlTypeSet(LivingEntity.ControlType.CannotControl, true);
 
-            controller.value = Player.instance.InputMultiplier * moveVector.x;
+            controller.ModifierValue = Player.instance.InputMultiplier * moveVector.x;
             Player.instance.outsideSourceSpeed.AddSingleModifier(controller);
 
             if (!Player.instance.isLookingRight && moveVector.Equals(Vector3.right))
@@ -114,7 +114,7 @@ public class SceneTransitioner : MonoBehaviour
 
         Player.instance.LockSmoothing = true;
         //Player.instance.outsideVelocitySource = Player.instance.InputMultiplier * -moveVector.x;
-        controller.value = Player.instance.InputMultiplier * -moveVector.x;
+        controller.ModifierValue = Player.instance.InputMultiplier * -moveVector.x;
         Player.instance.outsideSourceSpeed.AddSingleModifier(controller);
 
         float enterTimer = 0;

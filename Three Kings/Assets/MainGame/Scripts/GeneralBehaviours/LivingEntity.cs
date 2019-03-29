@@ -13,9 +13,12 @@ public class LivingEntity : MonoBehaviour
     public AdvancedFloat knockbackSpeed = new AdvancedFloat();
     public AdvancedFloat outsideSourceSpeed = new AdvancedFloat();
     [SerializeField] private float totalXVelocity;
+
+    [Header("Input:")]
     public float inputSensitivity = 3f;
     public float inputGravity = 3f;
     public float inputDead = 0.001f;
+
     public float smoothingValue;
     private bool lockSmoothing;
     public bool LockSmoothing
@@ -51,15 +54,10 @@ public class LivingEntity : MonoBehaviour
     }
     public bool lockFlip;
 
-    [HideInInspector] public HealthControl healthControl;
-    [HideInInspector] public KnockbackControl knockbackControl;
-
     [Header("Physics:")]
     public float originalTerminalVelocity = -20f;
     [SerializeField] private float currentTerminalVelocity;
     public List<TerminalVel> terminalVels = new List<TerminalVel>();
-    
-
     public float groundRayLength = 0.12f;
     protected LayerMask groundMask;
 
@@ -82,9 +80,12 @@ public class LivingEntity : MonoBehaviour
     [Header("References:")]
     [HideInInspector] public BoxCollider2D entityBC2D;
     [HideInInspector] public Rigidbody2D entityRB2D;
+    [HideInInspector] public HealthControl healthControl;
+    [HideInInspector] public KnockbackControl knockbackControl;
 
-
-
+    public Action ControlMethod;
+    public Action ActionUpdateMethod;
+    public Action ActionFixedUpMethod;
 
     protected virtual void Awake()
     {
@@ -98,7 +99,7 @@ public class LivingEntity : MonoBehaviour
         healthControl.onHitDeath += PhysicsCleanUpOnDeath;
 
         knockbackControl = GetComponent<KnockbackControl>();
-        waitForStopped = new WaitUntil(() => !isStopped); 
+        waitForNotPaused = new WaitUntil(() => !isPaused); 
 
         currentTerminalVelocity = originalTerminalVelocity;
     }
@@ -111,12 +112,14 @@ public class LivingEntity : MonoBehaviour
 
     protected virtual void Update()
     {
-        if (Input.GetKeyDown(KeyCode.I))
+        if (currControlType != ControlType.OtherControl)
         {
-            IsStopped = !IsStopped;
+            //Flipping 
+            EntityFlipControl();
         }
-        //Flipping 
-        EntityFlipControl();
+
+        ControlMethod?.Invoke();
+        ActionUpdateMethod?.Invoke();
     }
 
 
@@ -128,6 +131,8 @@ public class LivingEntity : MonoBehaviour
         {
             EntityMove();
         }
+
+        ActionFixedUpMethod?.Invoke();
     }
 
 
@@ -146,9 +151,8 @@ public class LivingEntity : MonoBehaviour
         {
             LockSmoothing = false;
         }
-      
+             
         
-        //totalXVelocity = (baseInputSpeed.Value * knockbackControl.baseInputMultiplier) + (knockbackControl.knockbackIntensity * knockbackControl.knockbackMultiplier) + outsideSourceSpeed.Value;
         totalXVelocity = ((baseInputSpeed.Value + outsideSourceSpeed.Value) * knockbackControl.inputReducer) + knockbackControl.knockbackX.Value;
         entityRB2D.velocity = new Vector2(totalXVelocity, entityRB2D.velocity.y);
 
@@ -187,9 +191,23 @@ public class LivingEntity : MonoBehaviour
             float target = Input.GetAxisRaw(axisName);
             if (target != 0)
             {
-                if ((target > 0 && smoothingValue < 0) || (target < 1 && smoothingValue > 0))
+                if (target > 0)
                 {
-                    smoothingValue = 0;
+                    target = 1;
+
+                    if(smoothingValue < 0)
+                    {
+                        smoothingValue = 0;
+                    }
+                }
+                if(target < 0)
+                {
+                    target = -1;
+
+                    if(smoothingValue > 0)
+                    {
+                        smoothingValue = 0;
+                    }
                 }
                 smoothingValue = Mathf.MoveTowards(smoothingValue, target, inputSensitivity * Time.deltaTime);
             }
@@ -197,7 +215,6 @@ public class LivingEntity : MonoBehaviour
             {
                 smoothingValue = Mathf.MoveTowards(smoothingValue, 0f, inputGravity * Time.deltaTime);
             }
-
             if (Mathf.Abs(smoothingValue) < inputDead)
             {
                 return 0f;
@@ -248,16 +265,20 @@ public class LivingEntity : MonoBehaviour
     }
 
 
-    public void EntityFlip()
+    public bool EntityFlip()
     {
         if (!lockFlip)
         {
             Debug.Log("Flip");
+
             isLookingRight = !isLookingRight;
             Vector2 localScale = transform.localScale;
             localScale.x *= -1;
             transform.localScale = localScale;
+
+            return true;
         }
+        return false;
     }
 
 
@@ -371,9 +392,9 @@ public class LivingEntity : MonoBehaviour
         float time = 0;
         while(time < duration)
         {
-            if (isStopped)
+            if (isPaused)
             {
-                yield return new WaitUntil(() => !isStopped);
+                yield return waitForNotPaused;
             }
 
             if (!isFixed)
@@ -390,12 +411,12 @@ public class LivingEntity : MonoBehaviour
             }
         }
     }
-    bool isStopped;
-    bool IsStopped
+    bool isPaused;
+    protected virtual bool IsPaused
     {
         get
         {
-            return isStopped;
+            return isPaused;
         }
         set
         {
@@ -409,23 +430,23 @@ public class LivingEntity : MonoBehaviour
                 oldvel = entityRB2D.velocity;
                 entityRB2D.velocity = Vector2.zero;
             }
-            if(!value && isStopped)
+            if(!value && isPaused)
             {
                 entityRB2D.bodyType = oldType;
                 entityRB2D.gravityScale = 1;
                 entityRB2D.velocity = oldvel;
             }
 
-            isStopped = value;
+            isPaused = value;
         }
     }
     protected WaitForFixedUpdate waitForFix = new WaitForFixedUpdate();
-    protected WaitUntil waitForStopped;
+    protected WaitUntil waitForNotPaused;
 
     public void HitStop()
     {
         hitStopTimer = 0;
-        IsStopped = true;
+        IsPaused = true;
     }
     float hitStopDuration = 2f;
     float hitStopTimer = 5;

@@ -55,7 +55,7 @@ public class KnockbackControl : MonoBehaviour
             isHardKnocking = true;
 
             inputReducer = 0;
-            xMod.value = 1;
+            xMod.ModifierValue = 1;
 
             knockbackX.BaseValue = knock.x;
 
@@ -67,14 +67,14 @@ public class KnockbackControl : MonoBehaviour
 
             isHardKnocking = false;
 
-            while (!(inputReducer == 1 && xMod.value == 0))
+            while (!(inputReducer == 1 && xMod.ModifierValue == 0))
             {
                 if (internalTime <= (initialDur + subDur))
                 {
                     isSoftKnocking = true;
                     knockbackSubLerpTime = (internalTime - initialDur) / subDur;
                     inputReducer = Mathf.Lerp(0f, 1f, knockbackSubLerpTime);
-                    xMod.value = Mathf.Lerp(1f, 0f, knockbackSubLerpTime);
+                    xMod.ModifierValue = Mathf.Lerp(1f, 0f, knockbackSubLerpTime);
 
                     internalTime += Time.fixedDeltaTime;
                     yield return waitForFix;
@@ -83,7 +83,7 @@ public class KnockbackControl : MonoBehaviour
                 {
                     inputReducer = 1;
                     knockbackX.BaseValue = 0;
-                    xMod.value = 0;
+                    xMod.ModifierValue = 0;
                     isSoftKnocking = false;
                 }
             }
@@ -99,7 +99,7 @@ public class KnockbackControl : MonoBehaviour
             StopCoroutine(lastKnockback);
             inputReducer = 1;
             knockbackX.BaseValue = 0;
-            xMod.value = 0;
+            xMod.ModifierValue = 0;
 
             isSoftKnocking = false;
             isHardKnocking = false;

@@ -33,7 +33,7 @@ public class Interactable : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.gameObject.CompareTag("Player"))
+        if (collision.gameObject.CompareTag("Player") && Player.instance.currControlType == LivingEntity.ControlType.CanControl)
         {
             inRange = true;
         }
