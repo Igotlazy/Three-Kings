@@ -18,11 +18,16 @@ public class SceneTransitioner : MonoBehaviour
 
     FloatModifier controller;
 
+    public StateSetter transitionState;
+
 
     private void Awake()
     {
         controller = new FloatModifier(0, FloatModifier.FloatModType.Flat, this);
         boxCollider = GetComponent<BoxCollider2D>();
+
+        transitionState = new StateSetter(this, null, Player.instance.BaseActionUpdate, Player.instance.BaseActionFixedUpdate, StateSetter.SetStrength.Strong);
+
         PositionExit();
         OrientMoveVector();
     }
@@ -40,10 +45,11 @@ public class SceneTransitioner : MonoBehaviour
             boxCollider.enabled = false;
 
             Player.instance.hurtBox.enabled = false;
-            Player.instance.EntityControlTypeSet(LivingEntity.ControlType.CannotControl, true);
+            Player.instance.SetLivingEntityState(transitionState, false);
 
-            controller.ModifierValue = Player.instance.InputMultiplier * moveVector.x;
+            controller.ModifierValue = Player.instance.InputMultiplier * moveVector.x * 0.9f;
             Player.instance.outsideSourceSpeed.AddSingleModifier(controller);
+            Player.instance.baseInputSpeed.BaseValue = 0;
 
             if (!Player.instance.isLookingRight && moveVector.Equals(Vector3.right))
             {
@@ -118,7 +124,7 @@ public class SceneTransitioner : MonoBehaviour
         Player.instance.outsideSourceSpeed.AddSingleModifier(controller);
 
         float enterTimer = 0;
-        while (enterTimer < 0.625f)
+        while (enterTimer < 0.7f)
         {
             enterTimer += Time.deltaTime;
             yield return null;
@@ -128,7 +134,7 @@ public class SceneTransitioner : MonoBehaviour
         Player.instance.outsideSourceSpeed.RemoveAllModifiers();
         Player.instance.hurtBox.enabled = true;
         Player.instance.LockSmoothing = false;
-        Player.instance.EntityControlTypeSet(LivingEntity.ControlType.CanControl, true);
+        Player.instance.OriginalStateSet();
 
         boxCollider.enabled = true;
     }

@@ -28,41 +28,44 @@ public class TimerDemo : MonoBehaviour
         givers[3].ability = Player.instance.glideAbility;
         givers[4].ability = Player.instance.slashAbility;
 
+        Player.instance.onManualRespawn += ResetDemo;
+
         stop.gameObject.SetActive(false);
         timer.text = string.Empty;
     }
 
-    // Update is called once per frame
-    void Update()
+    private void OnDestroy()
     {
-        if (Input.GetKeyDown(KeyCode.R) && Player.instance.currControlType == LivingEntity.ControlType.CanControl)
-        {
-            if (isActive)
-            {
-                Debug.Log("GIVE2");
-                collide.enabled = true;
-                sprite.SetActive(true);
-                StopCoroutine(co);
-                timer.text = string.Empty;
-                isActive = false;
-                counting = false;
-                stop.gameObject.SetActive(false);
-            }
+        Player.instance.onManualRespawn -= ResetDemo;
+    }
 
-            foreach (AbilityGivers give in givers)
+    private void ResetDemo()
+    {
+        if (isActive)
+        {
+            Debug.Log("GIVE2");
+            collide.enabled = true;
+            sprite.SetActive(true);
+            StopCoroutine(co);
+            timer.text = string.Empty;
+            isActive = false;
+            counting = false;
+            stop.gameObject.SetActive(false);
+        }
+
+        foreach (AbilityGivers give in givers)
+        {
+            Debug.Log("GIVE");
+            give.gameObject.SetActive(true);
+            try
             {
-                Debug.Log("GIVE");
-                give.gameObject.SetActive(true);
-                try
-                {
-                    Jump doubleJump = (Jump)give.ability;
-                    doubleJump.maxExtraJumps = 0;
-                    doubleJump.currentExtraJumps = 0;
-                }
-                catch (InvalidCastException)
-                {
-                    give.ability.AbilityActivated = false;
-                }
+                Jump doubleJump = (Jump)give.ability;
+                doubleJump.maxExtraJumps = 0;
+                doubleJump.currentExtraJumps = 0;
+            }
+            catch (InvalidCastException)
+            {
+                give.ability.AbilityActivated = false;
             }
         }
     }

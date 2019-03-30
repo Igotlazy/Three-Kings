@@ -26,10 +26,7 @@ public class SmallEnemy : Enemy
     protected override void Update()
     {
         base.Update();
-        if(currControlType == ControlType.CanControl)
-        {
-            EnemyMove();
-        }
+        EnemyMove();
     }
 
     protected override void FixedUpdate()

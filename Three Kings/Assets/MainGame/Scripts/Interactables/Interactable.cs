@@ -1,48 +1,48 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
-public class Interactable : MonoBehaviour
+public abstract class Interactable : MonoBehaviour
 {
     public bool inRange;
     public bool interacting;
 
     protected virtual void Start()
     {
-        GameController.instance.respawnManager.playerRespawn += onRespawn;
+
     }
 
     // Update is called once per frame
     protected virtual void Update()
-    {
-        Interact();
-    }
-
-    private void onRespawn()
-    {
-        if (inRange)
-        {
-            inRange = false;
-        }
-    }
-
-    protected virtual void Interact()
     {
 
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.gameObject.CompareTag("Player") && Player.instance.currControlType == LivingEntity.ControlType.CanControl)
+        if (collision == Player.instance.entityBC2D)
         {
             inRange = true;
+            Player.instance.interactableMethod = Interact;
         }
     }
     private void OnTriggerExit2D(Collider2D collision)
     {
-        if (collision.gameObject.CompareTag("Player"))
+        if (collision == Player.instance.entityBC2D)
         {
             inRange = false;
+            Player.instance.interactableMethod -= Interact;
+        }
+    }
+
+    protected abstract void Interact();
+
+    private void OnDestroy()
+    {
+        if(Player.instance != null)
+        {
+            Player.instance.interactableMethod -= Interact;
         }
     }
 }

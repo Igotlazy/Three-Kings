@@ -51,17 +51,22 @@ public class WallJump : Ability
         base.Start();
     }
 
+    protected override void Update()
+    {
+        base.Update();
+        if (lockOutTimer > 0)
+        {
+            lockOutTimer -= Time.deltaTime;
+            CanActivate = false;
+        }
+    }
+
     public override void AbilityUpdate()
     {
         base.AbilityUpdate();
         if (AbilityActivated)
         {
-            if(lockOutTimer > 0)
-            {
-                lockOutTimer -= Time.deltaTime;
-                CanActivate = false;
-            }
-            else
+            if(lockOutTimer <= 0)
             {
                 PWallJumpSensor();
             }

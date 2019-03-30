@@ -35,6 +35,10 @@ public abstract class Ability : MonoBehaviour
     public Action onAbilityCast;
     public Func<bool> castRestriction;
 
+    public Action AbilityUpdateMethod;
+    public Action AbilityFixedUpMethod;
+    public Action AbilityControlMethod;
+
     protected virtual void Awake()
     {
         CanActivate = true;
@@ -54,8 +58,14 @@ public abstract class Ability : MonoBehaviour
     {
 
     }
+    protected virtual void Update()
+    {
 
-    
+    }
+
+
+
+
     public virtual void AbilityUpdate()
     {
         
@@ -71,6 +81,7 @@ public abstract class Ability : MonoBehaviour
         if (AbilityActivated && CanActivate && (castRestriction?.Invoke() ?? true))
         {
             onAbilityCast?.Invoke();
+
             CastAbilityImpl();
         }
     }

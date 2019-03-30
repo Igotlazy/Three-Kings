@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Cinemachine;
+using System;
 
 [RequireComponent(typeof(PlayerHealth))]
 [RequireComponent(typeof(PlayerEnergy))]
@@ -30,6 +31,8 @@ public class Player : LivingEntity
     public BlastAttack blastAbility;
 
     private List<Ability> abilities = new List<Ability>();
+
+    public Action interactableMethod;
 
 
     protected override void Awake()
@@ -63,7 +66,102 @@ public class Player : LivingEntity
 
     protected override void Update()
     {
-        base.Update();
+        base.Update();             
+    }
+
+
+    protected override void FixedUpdate()
+    {
+        base.FixedUpdate();
+    }
+
+    //----------------------------------------------------------------------------------
+
+    // METHODS
+
+    
+
+    public override void BaseActionControl()
+    {
+        base.BaseActionControl();
+
+        baseInputSpeed.BaseValue = InputSmoothing("Horizontal") * InputMultiplier;
+
+        //Jumping
+        if (Input.GetButtonDown("Jump"))
+        {
+            jumpAbility.CastAbility();
+        }
+
+        if (!Input.GetButton("Jump"))
+        {
+            jumpAbility.Cancel();
+        }
+
+        //Gliding
+        if (Input.GetButton("Glide"))
+        {
+            glideAbility.CastAbility();
+        }
+        if (!Input.GetButton("Glide"))
+        {
+            glideAbility.Cancel();
+        }
+
+
+        //Blast Attack
+        /*
+        if (Input.GetMouseButtonDown(0))
+        {
+            blastAbility.CastAbility();
+        }
+        */
+
+
+        //[DEBUG]
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            RespawnSwathe();
+        }
+
+        if(Input.GetAxis("Vertical") > 0 && IsGrounded)
+        {
+            interactableMethod?.Invoke();
+        }
+
+        if (Input.GetButtonDown("Jump"))
+        {
+            wallJumpAbility.CastAbility();
+        }
+
+        //Dashing
+        if (Input.GetButtonDown("Dash"))
+        {
+            dashAbility.CastAbility();
+        }
+
+        //Slash
+        if (Input.GetButtonDown("Slash"))
+        {
+            if (!vaultAbility.CanActivate)
+            {
+                slashAbility.CastAbility();
+            }
+            else
+            {
+                //Vault
+                vaultAbility.CastAbility();
+            }
+        }
+        //Vault Toggle
+        if (Input.GetButtonDown("Vault"))
+        {
+            vaultAbility.Toggle();
+        }
+    }
+    public override void BaseActionUpdate()
+    {
+        base.BaseActionUpdate();
 
         GroundCheck();
 
@@ -71,106 +169,17 @@ public class Player : LivingEntity
         {
             abil.AbilityUpdate();
         }
-
-        //Get Input Axis [Horizontal Movement]
-        if (currControlType == ControlType.CanControl)
-        {
-            baseInputSpeed.BaseValue = InputSmoothing("Horizontal") * InputMultiplier;
-        }
-        else
-        {
-            baseInputSpeed.BaseValue = 0;
-        }
-
-        if (currControlType == ControlType.CanControl)
-        {
-            //Jumping
-            if (Input.GetButtonDown("Jump"))
-            {
-                jumpAbility.CastAbility();
-            }
-
-            if (!Input.GetButton("Jump"))
-            {
-                jumpAbility.Cancel();
-            }
-
-            //Gliding
-            if (Input.GetButton("Glide"))
-            {
-                glideAbility.CastAbility();
-            }
-            if (!Input.GetButton("Glide"))
-            {
-                glideAbility.Cancel();
-            }
-            
-
-            //Blast Attack
-            /*
-            if (Input.GetMouseButtonDown(0))
-            {
-                blastAbility.CastAbility();
-            }
-            */
-
-            
-            //[DEBUG]
-            if (Input.GetKeyDown(KeyCode.R))
-            {
-                RespawnSwathe();
-            }            
-        }
-
-        if (currControlType == ControlType.CanControl || dashAbility.isDashing)
-        {
-            //Wall Jump
-            if (Input.GetButtonDown("Jump"))
-            {
-                wallJumpAbility.CastAbility();
-            }
-
-            //Dashing
-            if (Input.GetButtonDown("Dash"))
-            {
-                dashAbility.CastAbility();
-            }
-
-            //Slash
-            if (Input.GetButtonDown("Slash"))
-            {
-                if (!vaultAbility.CanActivate)
-                {
-                    slashAbility.CastAbility();
-                }
-                else
-                {
-                    //Vault
-                    vaultAbility.CastAbility();
-                }
-            }
-            //Vault Toggle
-            if (Input.GetButtonDown("Vault"))
-            {
-                vaultAbility.Toggle();
-            }
-        }
     }
 
-
-    protected override void FixedUpdate()
+    public override void BaseActionFixedUpdate()
     {
-        base.FixedUpdate();
+        base.BaseActionFixedUpdate();
 
         foreach (Ability abil in abilities)
         {
             abil.AbilityFixedUpdate();
         }
     }
-
-    //----------------------------------------------------------------------------------
-
-    // METHODS
 
     private void SetUpAbilities()
     {
@@ -191,6 +200,7 @@ public class Player : LivingEntity
 
         dashAbility.onAbilityCast += OnDash;
         dashAbility.onDashVectorCalculated += OnDashVectorCalculated;
+        dashAbility.DashControl = DashControl;
 
         wallJumpAbility.onWallCling += OnWallCling;
         wallJumpAbility.onAbilityCast += OnWallJump;
@@ -213,33 +223,27 @@ public class Player : LivingEntity
         GameController.instance.respawnManager.MajorRespawnData = data;
         swatheHealth.Death();
 
-    }
+        onManualRespawn?.Invoke();
 
-    protected override void PhysicsCleanUpOnDeath(Attack attack)
-    {
-        jumpAbility.Cancel();
-        dashAbility.Cancel();
-        glideAbility.Cancel();
-        wallJumpAbility.Cancel();
-        vaultAbility.Cancel();
-        vaultAbility.CanActivate = false;
-        base.PhysicsCleanUpOnDeath(attack);
     }
-
-    protected override void ControlTypeInstaStopAux(ControlType givenType)
-    {
-        jumpAbility.Cancel();
-        dashAbility.Cancel();
-        glideAbility.Cancel();
-        wallJumpAbility.Cancel();
-        vaultAbility.Cancel();
-        base.ControlTypeInstaStopAux(givenType);
-    }
+    public Action onManualRespawn;
 
     public void ResetMobility()
     {
         jumpAbility.currentExtraJumps = jumpAbility.maxExtraJumps;
         dashAbility.currentDashCharge = dashAbility.maxDashCharge;
+    }
+
+    public void EnableHitboxAndVisuals()
+    {
+        sprite.gameObject.SetActive(true);
+        hurtBox.enabled = true;
+    }
+
+    public void DisableHitboxAndVisuals()
+    {
+        sprite.gameObject.SetActive(false);
+        hurtBox.enabled = false;
     }
 
     /// <summary>
@@ -296,6 +300,39 @@ public class Player : LivingEntity
         }
         return dashVec;
     }
+    private void DashControl()
+    {
+        wallJumpAbility.AbilityUpdate();
+        if (Input.GetButtonDown("Jump"))
+        {
+            wallJumpAbility.CastAbility();
+        }
+
+        //Dashing
+        if (Input.GetButtonDown("Dash"))
+        {
+            dashAbility.CastAbility();
+        }
+
+        //Slash
+        if (Input.GetButtonDown("Slash"))
+        {
+            if (!vaultAbility.CanActivate)
+            {
+                slashAbility.CastAbility();
+            }
+            else
+            {
+                //Vault
+                vaultAbility.CastAbility();
+            }
+        }
+        //Vault Toggle
+        if (Input.GetButtonDown("Vault"))
+        {
+            vaultAbility.Toggle();
+        }
+    }
 
 
 
@@ -307,7 +344,10 @@ public class Player : LivingEntity
     {
         jumpAbility.isJumping = false; //So Jump Cancel cannot stop Y velocity from Wall Jump.
 
-        dashAbility.Cancel(); //So you can Wall Jump out of Dash
+        if (dashAbility.isDashing)
+        {
+            OriginalStateSet();
+        }
         dashAbility.ApplyLock(); //So you can't immediately Dash out of wall Jump.
     }
     private bool WallJumpRestric()
@@ -323,8 +363,11 @@ public class Player : LivingEntity
     private void OnSlashHit(HealthControl givenHealh)
     {
         Debug.Log("Slash Hit");
-        dashAbility.Cancel();
-        if(givenHealh != null)
+        if (dashAbility.isDashing)
+        {
+            OriginalStateSet();
+        }
+        if (givenHealh != null)
         {
             swatheEnergy.CurrentEnergy += 1;
         }
@@ -333,7 +376,10 @@ public class Player : LivingEntity
     {
         jumpAbility.isJumping = false; //So Jump Cancel cannot stop Y velocity
 
-        dashAbility.Cancel(); //So you can Cancel Dash from a Pogo
+        if (dashAbility.isDashing)
+        {
+            OriginalStateSet();
+        }
 
         ResetMobility(); //So Pogo'ing resets mobility.
     }

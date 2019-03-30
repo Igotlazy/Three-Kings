@@ -2,24 +2,21 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MobilityRefresher : Interactable
+public class MobilityRefresher : MonoBehaviour
 {
     public GameObject sprite;
     private Collider2D col;
 
     public float respawnTimer = 2f;
 
-    protected override void Start()
+    void Start()
     {
-        base.Start();
         col = GetComponent<Collider2D>();
     }
 
-
-    protected override void Update()
+    private void OnTriggerEnter2D(Collider2D collision)
     {
-        base.Update();
-        if (inRange)
+        if(collision == Player.instance.entityBC2D)
         {
             StartCoroutine(Time());
         }
@@ -30,7 +27,6 @@ public class MobilityRefresher : Interactable
         Player.instance.ResetMobility();
         col.enabled = false;
         sprite.SetActive(false);
-        inRange = false;
 
         yield return new WaitForSeconds(respawnTimer);
 

@@ -9,9 +9,12 @@ public class TalkingNPC : Interactable
     private Player swathe;
     private bool moveDuringConvo;
 
+    public StateSetter npcTalkSetter;
+
     protected override void Start()
     {
         base.Start();
+        npcTalkSetter = new StateSetter(this, null, Player.instance.BaseActionUpdate, Player.instance.BaseActionFixedUpdate, StateSetter.SetStrength.Medium);
         swathe = Player.instance;
         interactIndicator.SetActive(false);
         if (conversation.isAutomatic)
@@ -37,31 +40,28 @@ public class TalkingNPC : Interactable
 
     protected override void Interact()
     {
-        base.Interact();
-
-        if (Input.GetAxisRaw("Vertical") > 0 && inRange && !interacting && Player.instance.currControlType == LivingEntity.ControlType.CanControl && Player.instance.gameObject.activeInHierarchy)
+        if ((swathe.transform.position.x > transform.position.x && swathe.isLookingRight) || (swathe.transform.position.x < transform.position.x && !swathe.isLookingRight))
         {
-            if((swathe.transform.position.x > transform.position.x && swathe.isLookingRight) || (swathe.transform.position.x < transform.position.x && !swathe.isLookingRight))
-            {
-                swathe.EntityFlip();
-            }
-            if (!moveDuringConvo)
-            {
-                swathe.EntityControlTypeSet(LivingEntity.ControlType.CannotControl, true);
-            }
-
-            UIManager.instance.textBoxUI.EndConvo += EndConvo;
-            UIManager.instance.textBoxUI.LoadConversation(conversation);
-            UIManager.instance.textBoxUI.ProgressConversation();
-            interacting = true;
+            swathe.EntityFlip();
         }
+        if (!moveDuringConvo)
+        {
+            swathe.SetLivingEntityState(npcTalkSetter, false);
+            swathe.baseInputSpeed.BaseValue = 0;
+            swathe.smoothingValue = 0;
+        }
+
+        UIManager.instance.textBoxUI.EndConvo += EndConvo;
+        UIManager.instance.textBoxUI.LoadConversation(conversation);
+        UIManager.instance.textBoxUI.ProgressConversation();
+        interacting = true;
     }
 
     private void EndConvo()
     {
         if (!moveDuringConvo)
         {
-            swathe.EntityControlTypeSet(LivingEntity.ControlType.CanControl, true);
+            swathe.OriginalStateSet();
         }
         interacting = false;
     }

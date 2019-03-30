@@ -37,9 +37,12 @@ public class RespawnManager : MonoBehaviour
     }
     public Action playerRespawn;
 
+    public StateSetter respawnState;
+
     // Start is called before the first frame update
     void Awake()
     {
+        respawnState = new StateSetter(this, null, null, null, StateSetter.SetStrength.Strong);
         RespawnData newMajor = new RespawnData()
         {
             sceneName = SceneManager.GetActiveScene().name,
@@ -68,7 +71,10 @@ public class RespawnManager : MonoBehaviour
     {
         playerRespawn?.Invoke(); //So things know that the player is respawning.
 
-        Player.instance.gameObject.SetActive(false);
+        Player.instance.DisableHitboxAndVisuals();
+        Player.instance.SetLivingEntityState(respawnState, false);
+        Player.instance.InputAndPhysicsCleanUp();
+        Player.instance.entityRB2D.bodyType = RigidbodyType2D.Kinematic;
 
         yield return new WaitForSeconds(1);
         UIManager.instance.ToggleFade();
@@ -93,12 +99,13 @@ public class RespawnManager : MonoBehaviour
 
             Player.instance.healthControl.CurrentHealth = Player.instance.healthControl.MaxHealth;
         }
-        Player.instance.EntityControlTypeSet(LivingEntity.ControlType.CannotControl, true);
-        Player.instance.gameObject.SetActive(true);
 
         yield return new WaitForSeconds(1);
-        
+        Player.instance.EnableHitboxAndVisuals();
+
         UIManager.instance.ToggleFade();
-        Player.instance.EntityControlTypeSet(LivingEntity.ControlType.CanControl, true);
+
+        Player.instance.entityRB2D.bodyType = RigidbodyType2D.Dynamic;
+        Player.instance.OriginalStateSet();
     }
 }

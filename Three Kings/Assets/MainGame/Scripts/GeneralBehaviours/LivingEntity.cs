@@ -61,15 +61,6 @@ public class LivingEntity : MonoBehaviour
     public float groundRayLength = 0.12f;
     protected LayerMask groundMask;
 
-    public enum ControlType
-    {
-        CanControl,
-        CannotControl,
-        OtherControl
-    }
-    [Tooltip("0 = Can Control, 1 = Cannot Control, 2 = Other Movement")]
-    public ControlType currControlType;
-
     [Header("State Bools:")]
     public bool isLookingRight;
     [SerializeField] protected bool isGrounded;
@@ -83,9 +74,55 @@ public class LivingEntity : MonoBehaviour
     [HideInInspector] public HealthControl healthControl;
     [HideInInspector] public KnockbackControl knockbackControl;
 
-    public Action ControlMethod;
-    public Action ActionUpdateMethod;
-    public Action ActionFixedUpMethod;
+    public Action SetControlMethod { get; private set; }
+    public Action SetActionUpdateMethod { get; private set; }
+    public Action SetActionFixedUpMethod { get; private set; }
+
+    public StateSetter currentController;
+    private StateSetter originalState;
+
+    public bool SetLivingEntityState(StateSetter setter, bool ignoreStrength)
+    {
+        if(currentController == null || ignoreStrength || currentController.setStrength <= setter.setStrength)
+        {
+            if(currentController != null)
+            {
+                currentController.CancelState();
+            }
+
+            if (setter.nullsOverride)
+            {
+                SetControlMethod = setter.ControlMethod;
+                SetActionUpdateMethod = setter.UpdateMethod;
+                SetActionFixedUpMethod = setter.FixedUpdateMethod;
+            }
+            else
+            {
+                if(setter.ControlMethod != null)
+                {
+                    SetControlMethod = setter.ControlMethod;
+                }
+                if(setter.UpdateMethod != null)
+                {
+                    SetActionUpdateMethod = setter.UpdateMethod;
+                }
+                if(setter.FixedUpdateMethod != null)
+                {
+                    SetActionFixedUpMethod = setter.FixedUpdateMethod;
+                }
+            }
+
+            currentController = setter;
+
+            return true;
+        }
+        else
+        {
+            setter.CancelState();
+        }
+
+        return false;
+    }
 
     protected virtual void Awake()
     {
@@ -99,46 +136,78 @@ public class LivingEntity : MonoBehaviour
         healthControl.onHitDeath += PhysicsCleanUpOnDeath;
 
         knockbackControl = GetComponent<KnockbackControl>();
-        waitForNotPaused = new WaitUntil(() => !isPaused); 
+        waitForNotPaused = new WaitUntil(() => !isPaused);
+
+        
 
         currentTerminalVelocity = originalTerminalVelocity;
+
+        originalState = new StateSetter(this, BaseActionControl, BaseActionUpdate, BaseActionFixedUpdate);
+        SetLivingEntityState(originalState, true);
     }
 
 
     protected virtual void Start()
     {
         EntityInitialLookingCheck();
+
+        SetControlMethod = BaseActionControl;
+        SetActionUpdateMethod = BaseActionUpdate;
+        SetActionFixedUpMethod = BaseActionFixedUpdate;
+        
     }
 
     protected virtual void Update()
     {
-        if (currControlType != ControlType.OtherControl)
+        /*
         {
-            //Flipping 
-            EntityFlipControl();
+            if (currControlType != ControlType.OtherControl)
+            {
+                //Flipping 
+                EntityFlipControl();
+            }
         }
+        */
 
-        ControlMethod?.Invoke();
-        ActionUpdateMethod?.Invoke();
+        SetControlMethod?.Invoke();
+        SetActionUpdateMethod?.Invoke();
     }
 
 
     protected virtual void FixedUpdate()
     {
         //Controlling Entity
-        TerminalVelocityUpdate();
-        if (currControlType == ControlType.CanControl || currControlType == ControlType.CannotControl)
+        /*
         {
-            EntityMove();
+            TerminalVelocityUpdate();
+            if (currControlType == ControlType.CanControl || currControlType == ControlType.CannotControl)
+            {
+                EntityMove();
+            }
         }
+        */
 
-        ActionFixedUpMethod?.Invoke();
+        SetActionFixedUpMethod?.Invoke();
     }
 
 
     //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     // [FUNCTIONS] //
+
+    public virtual void BaseActionUpdate()
+    {
+        EntityFlipControl();
+    }
+    public virtual void BaseActionFixedUpdate()
+    {
+        TerminalVelocityUpdate();
+        EntityMove();
+    }
+
+    public virtual void BaseActionControl() { }
+
+    public virtual void NoControl() { }
 
     public void EntityMove()
     {
@@ -228,6 +297,14 @@ public class LivingEntity : MonoBehaviour
         {
             return 0;
         }
+    }
+
+    public virtual void InputAndPhysicsCleanUp()
+    {
+        baseInputSpeed.BaseValue = 0;
+        smoothingValue = 0;
+        entityRB2D.velocity = Vector2.zero;
+        knockbackControl.StopKnockback();
     }
 
 
@@ -320,8 +397,8 @@ public class LivingEntity : MonoBehaviour
         }
         else if (attack.doesKnockback)
         {
-            EntityControlTypeSet(ControlType.CannotControl, true, 0.35f);
-            Debug.Log("Set to CannotControl");
+            hitTimeCounter = 0;
+            SetLivingEntityState(new StateSetter(this, HitKnockControl, BaseActionUpdate, BaseActionFixedUpdate), false);
 
             Vector2 knock = attack.knockback;
             if (attack.damageSource.transform.position.x > gameObject.transform.position.x)
@@ -333,59 +410,30 @@ public class LivingEntity : MonoBehaviour
         }
     }
 
+    private void HitKnockControl()
+    {
+        if(hitTimeCounter > 0.35f)
+        {
+            OriginalStateSet();
+        }
+        hitTimeCounter += Time.deltaTime;
+    }
+    float hitTimeCounter;
+
 
     protected virtual void PhysicsCleanUpOnDeath(Attack attack)
     {
-        knockbackControl.StopKnockback();
+        InputAndPhysicsCleanUp();
     }
 
-
-    public void EntityControlTypeSet(ControlType givenType, bool instaStop)
+    public bool OriginalStateSet()
     {
-        if(returnToControlType != null)
+        if (SetLivingEntityState(originalState, true))
         {
-            StopCoroutine(returnToControlType);
+            return true;
         }
-
-        if (instaStop)
-        {
-            ControlTypeInstaStopAux(givenType);
-        }
-
-        currControlType = givenType;
-
-        Debug.Log("Set To: " + givenType.ToString());
+        return false;
     }
-    public void EntityControlTypeSet(ControlType givenType, bool instaTop, float returnToCanControlTime)
-    {
-        EntityControlTypeSet(givenType, instaTop);
-
-        returnToControlType = StartCoroutine(ReturnToControlType(returnToCanControlTime));
-    }
-    Coroutine returnToControlType;
-
-
-    protected virtual void ControlTypeInstaStopAux(ControlType newType)
-    {
-        this.entityRB2D.velocity = Vector2.zero;
-        knockbackControl.StopKnockback();
-        smoothingValue = 0;
-    }
-
-
-    private IEnumerator ReturnToControlType(float returnTime)
-    {
-        float starTime = 0;
-
-        while(starTime <= returnTime)
-        {
-            starTime += Time.deltaTime;
-            yield return null;
-        }
-
-        currControlType = ControlType.CanControl;
-    }
-
 
     protected IEnumerator WaitForSecondsHitStop(float duration, bool isFixed, bool isRealTime)
     {
@@ -448,6 +496,7 @@ public class LivingEntity : MonoBehaviour
         hitStopTimer = 0;
         IsPaused = true;
     }
+
     float hitStopDuration = 2f;
     float hitStopTimer = 5;
     Vector2 oldvel = Vector2.zero;

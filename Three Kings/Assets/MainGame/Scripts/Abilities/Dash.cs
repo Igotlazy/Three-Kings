@@ -21,6 +21,11 @@ public class Dash : Ability
     public GameObject dashParticles;
 
     public Func<Vector2, Vector2> onDashVectorCalculated;
+    Vector2 currentVector;
+
+    private StateSetter dashState;
+
+    public Action DashControl;
 
     public override bool AbilityActivated
     {
@@ -48,6 +53,7 @@ public class Dash : Ability
     protected override void Awake()
     {
         base.Awake();
+        dashState = new StateSetter(this, DashControl, null, DashMain, CancelState, StateSetter.SetStrength.Weak);
         currentDashCharge = maxDashCharge;
     }
 
@@ -76,16 +82,6 @@ public class Dash : Ability
     protected override void CastAbilityImpl()
     {
         PDashInitInput();
-    }
-
-    public override void Cancel()
-    {
-        base.Cancel();
-
-        if (isDashing)
-        {
-            PDashCancel();
-        }
     }
 
     private void PDashInitInput()
@@ -133,79 +129,65 @@ public class Dash : Ability
             aEntity.EntityFlip();
             aEntity.FlipControlLockCounter = 0;
         }
-
-        if (dashCoroutine != null)
-        {
-            StopCoroutine(dashCoroutine);
-        }
-
-        dashCoroutine = StartCoroutine(DashMain(dashVector, speed, time, doLock));
-    }
-
-    Coroutine dashCoroutine;
-
-    private IEnumerator DashMain(Vector2 dashVector, float dSpeed, float dTime, bool doLock)
-    {
-        if (!doLock)
-        {
-            interCounter = 0;
-        }
-
-        aEntity.lockFlip = true;
-
-        aEntity.EntityControlTypeSet(LivingEntity.ControlType.OtherControl, true);
-        aEntity.entityRB2D.gravityScale = 0;
-
-        isDashing = true;
+        currentVector = dashVector;
 
         GameObject particles = Instantiate(dashParticles, gameObject.transform.position, Quaternion.identity);
+        particles.transform.SetParent(gameObject.transform);
         if (aEntity.isLookingRight)
         {
             particles.transform.localScale = new Vector3(-particles.transform.localScale.x, particles.transform.localScale.y, particles.transform.localScale.z);
         }
 
 
-        float currentTime = 0;
-        while (currentTime <= dTime)
+        if (!doLock)
         {
-            particles.transform.position = transform.position;
-            aEntity.entityRB2D.velocity = dashVector * dashCurve.Evaluate(currentTime / dTime) * dSpeed;
-            currentTime += Time.fixedDeltaTime;
-            yield return waitForFix;
+            interCounter = 0;
         }
 
-        aEntity.entityRB2D.gravityScale = 1;
-        aEntity.EntityControlTypeSet(LivingEntity.ControlType.CanControl, false);
+        aEntity.lockFlip = true;
+        isDashing = true;
 
-        if (doLock)
+        currentTime = 0;
+        aEntity.entityRB2D.gravityScale = 0;
+
+        aEntity.InputAndPhysicsCleanUp();
+        aEntity.SetLivingEntityState(dashState, false);
+    }
+    float currentTime;
+
+    private void DashMain()
+    {
+
+        aEntity.entityRB2D.velocity = currentVector * dashCurve.Evaluate(currentTime / dashTime) * dashSpeed;
+        currentTime += Time.deltaTime;
+
+        if (currentTime > dashTime)
         {
+            Debug.Log(aEntity.transform.position.y);
             interCounter = interTime;
-        }
 
-        aEntity.lockFlip = false;
-        isDashing = false;
-        if (dashVector.x > 0 && dashVector.y < 0.75f)
-        {
-            aEntity.smoothingValue = 1;
-        }
-        if (dashVector.x < 0 && dashVector.y < 0.75f)
-        {
-            aEntity.smoothingValue = -1;
+            aEntity.lockFlip = false;
+            isDashing = false;
+
+            if (currentVector.x > 0 && currentVector.y < 0.75f)
+            {
+                aEntity.smoothingValue = 1;
+            }
+            if (currentVector.x < 0 && currentVector.y < 0.75f)
+            {
+                aEntity.smoothingValue = -1;
+            }
+
+            aEntity.entityRB2D.gravityScale = 1;
+            aEntity.OriginalStateSet();
         }
     }
 
 
     private void PDashCancel()
     {
-        if (dashCoroutine != null)
-        {
-            StopCoroutine(dashCoroutine);
-        }
-
         aEntity.entityRB2D.gravityScale = 1;
         aEntity.entityRB2D.velocity = Vector2.zero;
-
-        aEntity.EntityControlTypeSet(LivingEntity.ControlType.CanControl, false);
 
         interCounter = 0;
         aEntity.lockFlip = false;
@@ -216,7 +198,7 @@ public class Dash : Ability
 
     private void GroundSets()
     {
-        if(!isDashing && aEntity.IsGrounded)
+        if(aEntity.IsGrounded)
         {
             currentDashCharge = maxDashCharge;
         }
@@ -225,5 +207,15 @@ public class Dash : Ability
     public void ApplyLock()
     {
         interCounter = interTime;
+    }
+
+
+    public void CancelState()
+    {
+        Debug.Log("Dash Cancelled");
+        aEntity.entityRB2D.gravityScale = 1;
+        interCounter = 0;
+        aEntity.lockFlip = false;
+        isDashing = false;
     }
 }

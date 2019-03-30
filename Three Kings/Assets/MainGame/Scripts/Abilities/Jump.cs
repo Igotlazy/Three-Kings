@@ -9,7 +9,7 @@ public class Jump : Ability
     public float jumpVelocity = 15.5f;
     public bool isJumping;
     public bool coyote;
-    public int coyoteFrameNum;
+    public float coyoteTime = 0.05f;
 
     [Header("Extra Jump:")]
     public float maxExtraJumps = 1;
@@ -22,7 +22,7 @@ public class Jump : Ability
     public Action onRegularJump;
     public Action onExtraJump;
 
-    private int coyoteTracker;
+    private float coyoteTracker;
 
 
     public override bool AbilityActivated
@@ -56,12 +56,16 @@ public class Jump : Ability
         base.Start();
     }
 
+    protected override void Update()
+    {
+        CoyoteFrames();
+    }
+
 
     public override void AbilityUpdate()
     {
         base.AbilityUpdate();
         GroundSet();
-        CoyoteFrames();
     }
 
     protected override void CastAbilityImpl()
@@ -131,11 +135,11 @@ public class Jump : Ability
     {
         if (coyote)
         {
-            coyoteTracker++;
-            if(coyoteTracker > coyoteFrameNum)
+            if(coyoteTracker > coyoteTime)
             {
                 coyote = false;
             }
+            coyoteTracker += Time.deltaTime;
         }
         if(!aEntity.IsGrounded && lastFrameGrounded)
         {

@@ -12,8 +12,6 @@ public class KnockbackControl : MonoBehaviour
     private Rigidbody2D entityRB2D;
 
     public float inputReducer = 1;
-    //public float knockbackMultiplier;
-    //public float knockbackIntensity;
 
     public AdvancedFloat knockbackX;
     private FloatModifier xMod;

@@ -13,9 +13,12 @@ public class Bench : Interactable
     public ParticleSystem sittingParticles;
     private Player swathe;
 
+    private StateSetter benchState;
+
     protected override void Start()
     {
         base.Start();
+        benchState = new StateSetter(this, null, BenchUpdate, null, BenchCancel, StateSetter.SetStrength.Medium);
         restLogo.SetActive(false);
         swathe = Player.instance;
 
@@ -24,24 +27,6 @@ public class Bench : Interactable
     protected override void Update()
     {
         base.Update();
-
-        if (interacting && !isSitting)
-        {
-            swathe.entityRB2D.MovePosition(swathe.transform.position + ((sitPosition.position - swathe.transform.position) * Time.deltaTime * sitSpeed));
-            if((swathe.transform.position - sitPosition.position).magnitude < 0.02f)
-            {
-                isSitting = true;
-                HasSat();
-            }
-            
-        }
-        if(Input.GetAxisRaw("Vertical") < 0 && isSitting)
-        {
-            swathe.entityRB2D.bodyType = RigidbodyType2D.Dynamic;
-            swathe.EntityControlTypeSet(LivingEntity.ControlType.CanControl, true);
-            interacting = false;
-            isSitting = false;
-        }
 
         if (inRange && !interacting)
         {
@@ -53,17 +38,37 @@ public class Bench : Interactable
         }
     }
 
+    private void BenchUpdate()
+    {
+        if (interacting && !isSitting)
+        {
+            swathe.entityRB2D.MovePosition(swathe.transform.position + ((sitPosition.position - swathe.transform.position) * Time.deltaTime * sitSpeed));
+            if ((swathe.transform.position - sitPosition.position).magnitude < 0.02f)
+            {
+                isSitting = true;
+                HasSat();
+            }
+        }
+
+        if (Input.GetAxisRaw("Vertical") < 0 && isSitting)
+        {
+            swathe.OriginalStateSet();
+        }
+    }
+
+    private void BenchCancel()
+    {
+        swathe.entityRB2D.bodyType = RigidbodyType2D.Dynamic;
+        interacting = false;
+        isSitting = false;
+    }
+
     protected override void Interact()
     {
-        base.Interact();
-
-        if(Input.GetAxisRaw("Vertical") > 0 && inRange && swathe.IsGrounded)
-        {
-            swathe.EntityControlTypeSet(LivingEntity.ControlType.OtherControl, true);
-            swathe.entityRB2D.bodyType = RigidbodyType2D.Kinematic;
-            interacting = true;
-
-        }
+        swathe.SetLivingEntityState(benchState, false);
+        swathe.InputAndPhysicsCleanUp();
+        swathe.entityRB2D.bodyType = RigidbodyType2D.Kinematic;
+        interacting = true;
     }
 
     private void HasSat()
