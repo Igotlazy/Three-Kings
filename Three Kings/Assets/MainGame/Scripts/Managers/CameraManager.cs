@@ -24,7 +24,7 @@ public class CameraManager : MonoBehaviour
     {
         if(currentCam.m_Follow != Player.instance.transform)
         {
-            //currentCam.m_Follow = Swathe.instance.transform;
+            currentCam.m_Follow = Player.instance.transform;
         }
     }
 

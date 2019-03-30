@@ -153,11 +153,13 @@ public class Player : LivingEntity
                 vaultAbility.CastAbility();
             }
         }
+        /*
         //Vault Toggle
         if (Input.GetButtonDown("Vault"))
         {
             vaultAbility.Toggle();
         }
+        */
     }
     public override void BaseActionUpdate()
     {
@@ -308,12 +310,6 @@ public class Player : LivingEntity
             wallJumpAbility.CastAbility();
         }
 
-        //Dashing
-        if (Input.GetButtonDown("Dash"))
-        {
-            dashAbility.CastAbility();
-        }
-
         //Slash
         if (Input.GetButtonDown("Slash"))
         {
@@ -362,7 +358,6 @@ public class Player : LivingEntity
     }
     private void OnSlashHit(HealthControl givenHealh)
     {
-        Debug.Log("Slash Hit");
         if (dashAbility.isDashing)
         {
             OriginalStateSet();

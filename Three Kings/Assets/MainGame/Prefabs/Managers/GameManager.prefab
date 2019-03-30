@@ -1343,21 +1343,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Cam Group
       objectReference: {fileID: 0}
-    - target: {fileID: 3138276915726421035, guid: c4f668a3a1d63204bb80d20e3d88020a,
-        type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 12.47
-      objectReference: {fileID: 0}
-    - target: {fileID: 3138276915726421035, guid: c4f668a3a1d63204bb80d20e3d88020a,
-        type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 1.6072049
-      objectReference: {fileID: 0}
-    - target: {fileID: 3138276915726421035, guid: c4f668a3a1d63204bb80d20e3d88020a,
-        type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -18
-      objectReference: {fileID: 0}
     - target: {fileID: 3138276915434255056, guid: c4f668a3a1d63204bb80d20e3d88020a,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -1428,6 +1413,26 @@ PrefabInstance:
       propertyPath: m_LocalPosition.z
       value: -18
       objectReference: {fileID: 0}
+    - target: {fileID: 3138276915726421035, guid: c4f668a3a1d63204bb80d20e3d88020a,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 12.47
+      objectReference: {fileID: 0}
+    - target: {fileID: 3138276915726421035, guid: c4f668a3a1d63204bb80d20e3d88020a,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 1.6072049
+      objectReference: {fileID: 0}
+    - target: {fileID: 3138276915726421035, guid: c4f668a3a1d63204bb80d20e3d88020a,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -18
+      objectReference: {fileID: 0}
+    - target: {fileID: 3138276914663141776, guid: c4f668a3a1d63204bb80d20e3d88020a,
+        type: 3}
+      propertyPath: m_ComponentOwner
+      value: 
+      objectReference: {fileID: 1040689510334467194}
     - target: {fileID: 3138276915726421032, guid: c4f668a3a1d63204bb80d20e3d88020a,
         type: 3}
       propertyPath: m_BackGroundColor.r
@@ -1453,16 +1458,6 @@ PrefabInstance:
       propertyPath: currentCam
       value: 
       objectReference: {fileID: 1040689510794808002}
-    - target: {fileID: 3138276914663141776, guid: c4f668a3a1d63204bb80d20e3d88020a,
-        type: 3}
-      propertyPath: m_Follow
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 3138276914663141776, guid: c4f668a3a1d63204bb80d20e3d88020a,
-        type: 3}
-      propertyPath: m_ComponentOwner
-      value: 
-      objectReference: {fileID: 1040689510334467194}
     - target: {fileID: 3138276915410794283, guid: c4f668a3a1d63204bb80d20e3d88020a,
         type: 3}
       propertyPath: m_YDamping

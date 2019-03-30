@@ -12,21 +12,27 @@ public class SceneTransitioner : MonoBehaviour
 
     [Header("References:")]
     public Transform exit;
-    public bool isUpOrDown;
+    private bool isUpOrDown = false;
     Vector3 moveVector;
     BoxCollider2D boxCollider;
 
-    FloatModifier controller;
+    static FloatModifier controller;
 
     public StateSetter transitionState;
+    public StateSetter transitionStateUp;
 
 
     private void Awake()
     {
-        controller = new FloatModifier(0, FloatModifier.FloatModType.Flat, this);
+        if(controller == null)
+        {
+            controller = new FloatModifier(0, FloatModifier.FloatModType.Flat, this);
+        }
+
         boxCollider = GetComponent<BoxCollider2D>();
 
         transitionState = new StateSetter(this, null, Player.instance.BaseActionUpdate, Player.instance.BaseActionFixedUpdate, StateSetter.SetStrength.Strong);
+        transitionStateUp = new StateSetter(this, null, null, null, StateSetter.SetStrength.Strong);
 
         PositionExit();
         OrientMoveVector();
@@ -45,20 +51,33 @@ public class SceneTransitioner : MonoBehaviour
             boxCollider.enabled = false;
 
             Player.instance.hurtBox.enabled = false;
-            Player.instance.SetLivingEntityState(transitionState, false);
-
-            controller.ModifierValue = Player.instance.InputMultiplier * moveVector.x * 0.9f;
-            Player.instance.outsideSourceSpeed.AddSingleModifier(controller);
-            Player.instance.baseInputSpeed.BaseValue = 0;
-
-            if (!Player.instance.isLookingRight && moveVector.Equals(Vector3.right))
+            if (moveVector.Equals(Vector3.up))
             {
-                Player.instance.EntityFlip();
+                Player.instance.SetLivingEntityState(transitionStateUp, false);
+                Player.instance.InputAndPhysicsCleanUp();
+                Player.instance.entityRB2D.bodyType = RigidbodyType2D.Kinematic;
+                Player.instance.entityRB2D.velocity = new Vector2(0f, 8f);
+
             }
-            if (Player.instance.isLookingRight && moveVector.Equals(Vector3.left))
+            else
             {
-                Player.instance.EntityFlip();
+                Player.instance.SetLivingEntityState(transitionState, false);
+
+                controller.ModifierValue = Player.instance.InputMultiplier * moveVector.x * 0.9f;
+                Player.instance.outsideSourceSpeed.AddSingleModifier(controller);
+
+                if (!Player.instance.isLookingRight && moveVector.Equals(Vector3.right))
+                {
+                    Player.instance.EntityFlip();
+                }
+                if (Player.instance.isLookingRight && moveVector.Equals(Vector3.left))
+                {
+                    Player.instance.EntityFlip();
+                }
+
+                Player.instance.InputAndPhysicsCleanUp();
             }
+
         }
     }
 
@@ -101,27 +120,42 @@ public class SceneTransitioner : MonoBehaviour
 
     public IEnumerator EnterPlayerToScene()
     {
-        Player.instance.transform.position = exit.transform.position;
-        Player.instance.entityRB2D.velocity = Vector2.zero;
         boxCollider.enabled = false;
 
-        if(Player.instance.isLookingRight && moveVector.Equals(Vector3.right))
-        {
-            Player.instance.EntityFlip();
-        }
-        if (!Player.instance.isLookingRight && moveVector.Equals(Vector3.left))
-        {
-            Player.instance.EntityFlip();
-        }
-
-        //Player.instance.outsideVelocitySource = 0;
+        Player.instance.transform.position = exit.transform.position;
+        Player.instance.InputAndPhysicsCleanUp();
         Player.instance.outsideSourceSpeed.RemoveAllModifiers();
+
         yield return new WaitForSeconds(1);
 
+        if (!isUpOrDown)
+        {
+            Player.instance.SetLivingEntityState(transitionState, false);
+            Debug.Log("Heelo");
+
+            if (Player.instance.isLookingRight && moveVector.Equals(Vector3.right))
+            {
+                Player.instance.EntityFlip();
+            }
+            if (!Player.instance.isLookingRight && moveVector.Equals(Vector3.left))
+            {
+                Player.instance.EntityFlip();
+
+            }
+
+            controller.ModifierValue = Player.instance.InputMultiplier * -moveVector.x * 0.9f;
+            Player.instance.outsideSourceSpeed.AddSingleModifier(controller);
+            Debug.Log("Did it " + controller.ModifierValue);
+        }
+        else
+        {
+            if (moveVector.Equals(Vector3.up))
+            {
+                Player.instance.SetLivingEntityState(transitionState, false);
+            }
+        }
+
         Player.instance.LockSmoothing = true;
-        //Player.instance.outsideVelocitySource = Player.instance.InputMultiplier * -moveVector.x;
-        controller.ModifierValue = Player.instance.InputMultiplier * -moveVector.x;
-        Player.instance.outsideSourceSpeed.AddSingleModifier(controller);
 
         float enterTimer = 0;
         while (enterTimer < 0.7f)
@@ -130,10 +164,11 @@ public class SceneTransitioner : MonoBehaviour
             yield return null;
         }
 
-        //Player.instance.outsideVelocitySource = 0;
+
         Player.instance.outsideSourceSpeed.RemoveAllModifiers();
         Player.instance.hurtBox.enabled = true;
-        Player.instance.LockSmoothing = false;
+
+        Player.instance.entityRB2D.bodyType = RigidbodyType2D.Dynamic;
         Player.instance.OriginalStateSet();
 
         boxCollider.enabled = true;
