@@ -15,26 +15,29 @@ public class Attack
 
     public static Vector2 standardPlayerKnockBack = new Vector2(9f, 9f);
 
-    public Attack(float _damageValue, GameObject _damageSource)
+    public Attack()
+    {
+        Debug.Log("Jon was here...");
+    }
+
+    public Attack(float _damageValue, GameObject _damageSource):this()
     {
         damageValue = _damageValue;
         damageSource = _damageSource;
 
         knockback = Vector2.zero;
-
     }
 
-    public Attack(float _damageValue, GameObject _damageSource, Vector2 _knockback)
+    public Attack(float _damageValue, GameObject _damageSource, Vector2 _knockback):this()
     {
         damageValue = _damageValue;
         damageSource = _damageSource;
 
         doesKnockback = true;
         knockback = _knockback;
-
     }
 
-    public Attack(bool _isInstaKill, GameObject _damageSource)
+    public Attack(bool _isInstaKill, GameObject _damageSource):this()
     {
         isInstaKill = _isInstaKill;
         damageSource = _damageSource;
