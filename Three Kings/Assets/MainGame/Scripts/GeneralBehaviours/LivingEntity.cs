@@ -15,27 +15,12 @@ public class LivingEntity : MonoBehaviour
     [SerializeField] private float totalXVelocity;
 
     [Header("Input:")]
-    public float inputSensitivity = 3f;
-    public float inputGravity = 3f;
-    public float inputDead = 0.001f;
+    public float inputSensitivity = 6f;
+    public float inputGravity = 10f;
+    public float inputDead = 0.2f;
 
     public float smoothingValue;
-    private bool lockSmoothing;
-    public bool LockSmoothing
-    {
-        get
-        {
-            return lockSmoothing;
-        }
-        set
-        {
-            lockSmoothing = value;
-            if(value == true)
-            {
-                smoothingValue = 0;
-            }
-        }
-    }
+
     private float flipControlLockCounter;
     public float FlipControlLockCounter
     {
@@ -81,11 +66,49 @@ public class LivingEntity : MonoBehaviour
     public StateSetter currentController;
     private StateSetter originalState;
 
+    protected virtual void Awake()
+    {
+        entityRB2D = this.GetComponent<Rigidbody2D>();
+        entityBC2D = this.GetComponent<BoxCollider2D>();
+
+        groundMask = (1 << LayerMask.NameToLayer("Ground - Soft")) | (1 << LayerMask.NameToLayer("Ground - Hard"));
+
+        healthControl = GetComponent<HealthControl>();
+        healthControl.onHitAlive += HitReactionOnAlive;
+        healthControl.onHitDeath += PhysicsCleanUpOnDeath;
+
+        knockbackControl = GetComponent<KnockbackControl>();
+        waitForNotPaused = new WaitUntil(() => !isPaused);
+
+        currentTerminalVelocity = originalTerminalVelocity;
+
+        originalState = new StateSetter(this, BaseActionControl, BaseActionUpdate, BaseActionFixedUpdate);
+        SetLivingEntityState(originalState, true);
+    }
+
+
+    protected virtual void Start()
+    {
+        EntityInitialLookingCheck();        
+    }
+
+    protected virtual void Update()
+    {
+        SetControlMethod?.Invoke();
+        SetActionUpdateMethod?.Invoke();
+    }
+
+
+    protected virtual void FixedUpdate()
+    {
+        SetActionFixedUpMethod?.Invoke();
+    }
+
     public bool SetLivingEntityState(StateSetter setter, bool ignoreStrength)
     {
-        if(currentController == null || ignoreStrength || currentController.setStrength <= setter.setStrength)
+        if (currentController == null || ignoreStrength || currentController.setStrength <= setter.setStrength)
         {
-            if(currentController != null)
+            if (currentController != null)
             {
                 currentController.CancelState();
             }
@@ -98,15 +121,15 @@ public class LivingEntity : MonoBehaviour
             }
             else
             {
-                if(setter.ControlMethod != null)
+                if (setter.ControlMethod != null)
                 {
                     SetControlMethod = setter.ControlMethod;
                 }
-                if(setter.UpdateMethod != null)
+                if (setter.UpdateMethod != null)
                 {
                     SetActionUpdateMethod = setter.UpdateMethod;
                 }
-                if(setter.FixedUpdateMethod != null)
+                if (setter.FixedUpdateMethod != null)
                 {
                     SetActionFixedUpMethod = setter.FixedUpdateMethod;
                 }
@@ -122,72 +145,6 @@ public class LivingEntity : MonoBehaviour
         }
 
         return false;
-    }
-
-    protected virtual void Awake()
-    {
-        groundMask = (1 << LayerMask.NameToLayer("Ground - Soft")) | (1 << LayerMask.NameToLayer("Ground - Hard"));
-
-        entityRB2D = this.GetComponent<Rigidbody2D>();
-        entityBC2D = this.GetComponent<BoxCollider2D>();
-
-        healthControl = GetComponent<HealthControl>();
-        healthControl.onHitAlive += HitReactionOnAlive;
-        healthControl.onHitDeath += PhysicsCleanUpOnDeath;
-
-        knockbackControl = GetComponent<KnockbackControl>();
-        waitForNotPaused = new WaitUntil(() => !isPaused);
-
-        
-
-        currentTerminalVelocity = originalTerminalVelocity;
-
-        originalState = new StateSetter(this, BaseActionControl, BaseActionUpdate, BaseActionFixedUpdate);
-        SetLivingEntityState(originalState, true);
-    }
-
-
-    protected virtual void Start()
-    {
-        EntityInitialLookingCheck();
-
-        SetControlMethod = BaseActionControl;
-        SetActionUpdateMethod = BaseActionUpdate;
-        SetActionFixedUpMethod = BaseActionFixedUpdate;
-        
-    }
-
-    protected virtual void Update()
-    {
-        /*
-        {
-            if (currControlType != ControlType.OtherControl)
-            {
-                //Flipping 
-                EntityFlipControl();
-            }
-        }
-        */
-
-        SetControlMethod?.Invoke();
-        SetActionUpdateMethod?.Invoke();
-    }
-
-
-    protected virtual void FixedUpdate()
-    {
-        //Controlling Entity
-        /*
-        {
-            TerminalVelocityUpdate();
-            if (currControlType == ControlType.CanControl || currControlType == ControlType.CannotControl)
-            {
-                EntityMove();
-            }
-        }
-        */
-
-        SetActionFixedUpMethod?.Invoke();
     }
 
 
@@ -210,18 +167,7 @@ public class LivingEntity : MonoBehaviour
     public virtual void NoControl() { }
 
     public void EntityMove()
-    {
-        //Horizontal Movement
-        if (knockbackControl.isHardKnocking)
-        {
-            LockSmoothing = true;
-        }
-        else
-        {
-            LockSmoothing = false;
-        }
-             
-        
+    { 
         totalXVelocity = ((baseInputSpeed.Value + outsideSourceSpeed.Value) * knockbackControl.inputReducer) + knockbackControl.knockbackX.Value;
         entityRB2D.velocity = new Vector2(totalXVelocity, entityRB2D.velocity.y);
 
@@ -255,7 +201,7 @@ public class LivingEntity : MonoBehaviour
 
     protected float InputSmoothing(string axisName)
     {
-        if (!lockSmoothing)
+        if (!knockbackControl.isHardKnocking)
         {
             float target = Input.GetAxisRaw(axisName);
             if (target != 0)
@@ -264,16 +210,16 @@ public class LivingEntity : MonoBehaviour
                 {
                     target = 1;
 
-                    if(smoothingValue < 0)
+                    if (smoothingValue < 0)
                     {
                         smoothingValue = 0;
                     }
                 }
-                if(target < 0)
+                if (target < 0)
                 {
                     target = -1;
 
-                    if(smoothingValue > 0)
+                    if (smoothingValue > 0)
                     {
                         smoothingValue = 0;
                     }

@@ -155,8 +155,6 @@ public class SceneTransitioner : MonoBehaviour
             }
         }
 
-        Player.instance.LockSmoothing = true;
-
         float enterTimer = 0;
         while (enterTimer < 0.7f)
         {

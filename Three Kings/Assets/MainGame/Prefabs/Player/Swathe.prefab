@@ -1,5 +1,84 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &796793836
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 796793837}
+  - component: {fileID: 796793838}
+  m_Layer: 0
+  m_Name: Backlight
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &796793837
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 796793836}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 15, y: 15, z: 0}
+  m_Children: []
+  m_Father: {fileID: 8298036903298970185}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!212 &796793838
+SpriteRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 796793836}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 0
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: -100
+  m_Sprite: {fileID: 21300000, guid: cd4d0f35c06329e48b4f25db7a47d917, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 0.2509804}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 1.28, y: 1.14}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 1
+  m_MaskInteraction: 0
+  m_SpriteSortPoint: 0
 --- !u!1 &903054671
 GameObject:
   m_ObjectHideFlags: 0
@@ -4950,6 +5029,7 @@ Transform:
   - {fileID: 8734285039207475208}
   - {fileID: 8301996280939984279}
   - {fileID: 8302842164209141283}
+  - {fileID: 796793837}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -5064,16 +5144,15 @@ MonoBehaviour:
   inputDead: 0.2
   smoothingValue: 0
   lockFlip: 0
-  healthControl: {fileID: 0}
-  knockbackControl: {fileID: 0}
   originalTerminalVelocity: -18.5
   currentTerminalVelocity: 0
   groundRayLength: 0.08
-  currControlType: 0
   isLookingRight: 0
   isGrounded: 0
   entityBC2D: {fileID: 0}
   entityRB2D: {fileID: 0}
+  healthControl: {fileID: 0}
+  knockbackControl: {fileID: 0}
   InputMultiplier: 6.5
   hurtBox: {fileID: 6880830872787278772}
   sprite: {fileID: 4050108717589138343}
@@ -5332,6 +5411,8 @@ MonoBehaviour:
   abilityActivated: 1
   jumpVelocity: 17.75
   isJumping: 0
+  coyote: 0
+  coyoteTime: 0.05
   maxExtraJumps: 0
   currentExtraJumps: 0
   extraJumpMultiplier: 0.8
@@ -5525,15 +5606,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5ced2ad953a475740a13f61907512184, type: 3}
---- !u!4 &3535504270283466401 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 2897422190441613290, guid: 5ced2ad953a475740a13f61907512184,
-    type: 3}
-  m_PrefabInstance: {fileID: 1811876722099102027}
-  m_PrefabAsset: {fileID: 0}
 --- !u!198 &3327318227061786310 stripped
 ParticleSystem:
   m_CorrespondingSourceObject: {fileID: 3965443708923897741, guid: 5ced2ad953a475740a13f61907512184,
+    type: 3}
+  m_PrefabInstance: {fileID: 1811876722099102027}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &3535504270283466401 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 2897422190441613290, guid: 5ced2ad953a475740a13f61907512184,
     type: 3}
   m_PrefabInstance: {fileID: 1811876722099102027}
   m_PrefabAsset: {fileID: 0}

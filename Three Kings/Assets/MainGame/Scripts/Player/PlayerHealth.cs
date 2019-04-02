@@ -99,5 +99,7 @@ public class PlayerHealth : HealthControl
         GameController.instance.respawnManager.InitiateMajorRespawn();
 
         Debug.Log("Player Death");
-    }         
+    }
 }
+
+
