@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(Rigidbody2D))]
+[RequireComponent(typeof(LivingEntity))]
 public class KnockbackControl : MonoBehaviour
 {
     [Header("Knockback")]
     public bool isKnockingBack;
     public bool isHardKnocking;
     public bool isSoftKnocking;
-    private Rigidbody2D entityRB2D;
+    private LivingEntity entity;
 
     public float inputReducer = 1;
 
@@ -20,7 +20,7 @@ public class KnockbackControl : MonoBehaviour
 
     private void Start()
     {
-        entityRB2D = GetComponent<Rigidbody2D>();
+        entity = GetComponent<LivingEntity>();
         xMod = new FloatModifier(0, FloatModifier.FloatModType.PercentMult, this);
         knockbackX.AddSingleModifier(xMod);
     }
@@ -46,13 +46,14 @@ public class KnockbackControl : MonoBehaviour
 
         if (knock.y != 0)
         {
-            entityRB2D.velocity = new Vector2(entityRB2D.velocity.x, knock.y);
+            entity.entityRB2D.velocity = new Vector2(entity.entityRB2D.velocity.x, knock.y);
         }
         if (knock.x != 0)
         {
             isHardKnocking = true;
 
             inputReducer = 0;
+            entity.smoothingValue = 0;
             xMod.ModifierValue = 1;
 
             knockbackX.BaseValue = knock.x;
