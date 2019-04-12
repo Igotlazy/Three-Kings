@@ -5,17 +5,28 @@ using UnityEngine.SceneManagement;
 
 public class MiniRespawnSetter : MonoBehaviour
 {
+    public LayerMask hitMask;
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if(collision.gameObject == Player.instance.gameObject)
         {
-            GameController.instance.respawnManager.miniRespawnData = new RespawnManager.RespawnData()
+            RaycastHit2D hitRay = Physics2D.Raycast(transform.position, Vector2.down, 20f, hitMask);
+            if(hitRay)
             {
-                sceneName = SceneManager.GetActiveScene().name,
-                respawnPosition = transform.position
-            };
+                GameController.instance.respawnManager.miniRespawnData = new RespawnManager.RespawnData()
+                {
+                    sceneName = SceneManager.GetActiveScene().name,
+                    respawnPosition = new Vector2(hitRay.point.x, hitRay.point.y + Player.instance.entityBC2D.size.y / 2 + 0.1f)
+                };
 
-            Debug.Log("Set MiniRespawn");
+                Debug.Log("Set MiniRespawn");
+            }
+            else
+            {
+                Debug.LogError("Warning: MiniRespawnSetter couldnt find the ground");
+            }
+
+
         }
     }
 }

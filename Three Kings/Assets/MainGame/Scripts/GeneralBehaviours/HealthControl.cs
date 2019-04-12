@@ -27,7 +27,7 @@ public class HealthControl : MonoBehaviour
         }
         set
         {
-            currentHealth = value;
+            currentHealth = Mathf.Clamp(value, 0, maxHealth);
         }
     }
 
@@ -59,6 +59,7 @@ public class HealthControl : MonoBehaviour
 
     protected virtual void Start()
     {
+        MaxHealth = maxHealth;
         CurrentHealth = MaxHealth;
     }
 

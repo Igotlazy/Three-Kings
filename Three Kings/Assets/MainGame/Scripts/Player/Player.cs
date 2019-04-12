@@ -29,6 +29,7 @@ public class Player : LivingEntity
     [Header("Combat Abilities")]
     public BasicSlash slashAbility;
     public BlastAttack blastAbility;
+    public FocusHeal focusHealAbility;
 
     private List<Ability> abilities = new List<Ability>();
 
@@ -106,6 +107,11 @@ public class Player : LivingEntity
         if (!Input.GetButton("Glide"))
         {
             glideAbility.Cancel();
+        }
+
+        if (Input.GetKey(KeyCode.B))
+        {
+            focusHealAbility.CastAbility();
         }
 
 
@@ -195,6 +201,7 @@ public class Player : LivingEntity
         //Combat
         abilities.Add(slashAbility);
         abilities.Add(blastAbility);
+        abilities.Add(focusHealAbility);
 
         //Interactions
         jumpAbility.castRestriction += JumpRestric;
@@ -213,6 +220,11 @@ public class Player : LivingEntity
         slashAbility.castRestriction += SlashRestrict;
         slashAbility.onSlashHit += OnSlashHit;
         slashAbility.onPogo += OnSlashPogo;
+
+        focusHealAbility.castRestriction += FocusHealRestric;
+        focusHealAbility.FocusHealthControl = FocusHealControl;
+        focusHealAbility.onPayment += OnFocusHealthPayment;
+        focusHealAbility.onComplete += OnFocusHealComplete;
     }
 
     public void RespawnSwathe()
@@ -305,6 +317,7 @@ public class Player : LivingEntity
     private void DashControl()
     {
         wallJumpAbility.AbilityUpdate();
+
         if (Input.GetButtonDown("Jump"))
         {
             wallJumpAbility.CastAbility();
@@ -334,7 +347,10 @@ public class Player : LivingEntity
 
     private void OnWallCling()
     {
-        ResetMobility(); //So you reset mobility while on a wall.
+        if (!dashAbility.isDashing)
+        {
+            ResetMobility(); //So you reset mobility while on a wall.
+        }
     }
     private void OnWallJump() 
     {
@@ -377,6 +393,42 @@ public class Player : LivingEntity
         }
 
         ResetMobility(); //So Pogo'ing resets mobility.
+    }
+
+    private bool FocusHealRestric()
+    {
+        if(IsGrounded && entityRB2D.velocity.y <= 0 && swatheEnergy.CurrentEnergy >= focusHealAbility.cost)
+        {
+            return true;
+        }
+        return false;
+    }
+    private void FocusHealControl()
+    {
+        base.BaseActionControl();
+
+        baseInputSpeed.BaseValue = InputSmoothing("Horizontal") * InputMultiplier;
+
+        if (!Input.GetKey(KeyCode.B))
+        {
+            focusHealAbility.Cancel();
+            OriginalStateSet();
+        }
+
+        if (Input.GetButtonDown("Dash"))
+        {
+            dashAbility.CastAbility();
+        }
+
+    }
+    private void OnFocusHealthPayment()
+    {
+        swatheEnergy.PayEnergy(focusHealAbility.cost);
+        Debug.Log("Pay");
+    }
+    private void OnFocusHealComplete()
+    {
+        swatheHealth.CurrentHealth += 1;
     }
     
 }

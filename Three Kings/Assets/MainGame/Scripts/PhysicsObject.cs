@@ -25,11 +25,17 @@ public class PhysicsObject : MonoBehaviour
     protected const float shellRadius = 0.01f;
     protected float minGroundNormalY = 0.065f;
 
+    protected bool grounded;
+
     private void Awake()
     {
         ObjectRb2d = GetComponent<Rigidbody2D>();
         gravity = new FloatModifier(0f, FloatModifier.FloatModType.Flat);
         yMovement.AddSingleModifier(gravity);
+
+        contactFilter2D.useTriggers = false;
+        contactFilter2D.SetLayerMask(Physics2D.GetLayerCollisionMask(gameObject.layer));
+        contactFilter2D.useLayerMask = true;
     }
 
     // Start is called before the first frame update
@@ -46,6 +52,7 @@ public class PhysicsObject : MonoBehaviour
 
     private void FixedUpdate()
     {
+        grounded = false;
         ObjectMove(new Vector2(CalculateMoveX(), CalculateMoveY()));
     }
 
@@ -53,7 +60,26 @@ public class PhysicsObject : MonoBehaviour
 
     private void ObjectMove(Vector2 moveVector)
     {
-        ObjectRb2d.velocity = moveVector;
+        float distance = moveVector.magnitude;
+        if(distance > minMoveDistance)
+        {
+            int count = ObjectRb2d.Cast(moveVector, contactFilter2D, hitBuffer, distance + shellRadius);
+            hitBufferList.Clear();
+            for(int i = 0; i < count; i++)
+            {
+                hitBufferList.Add(hitBuffer[i]);
+            }
+
+            for(int i = 0; i < hitBufferList.Count; i++)
+            {
+                Vector2 currentNormal = hitBufferList[i].normal;
+                if(currentNormal.y > minGroundNormalY)
+                {
+                    grounded = true;
+                }
+            }
+        }
+        ObjectRb2d.position += moveVector;
     }
 
 

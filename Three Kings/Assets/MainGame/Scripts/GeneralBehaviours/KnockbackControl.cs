@@ -96,6 +96,7 @@ public class KnockbackControl : MonoBehaviour
         if (lastKnockback != null)
         {
             StopCoroutine(lastKnockback);
+
             inputReducer = 1;
             knockbackX.BaseValue = 0;
             xMod.ModifierValue = 0;

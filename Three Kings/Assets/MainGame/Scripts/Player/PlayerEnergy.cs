@@ -11,24 +11,11 @@ public class PlayerEnergy : EnergyControl
     {
         get
         {
-            return currentEnergy;
+            return base.CurrentEnergy;
         }
         set
         {
-            if (!(base.CurrentEnergy == maxEnergy - 1 && playerHealth.CurrentHealth == playerHealth.MaxHealth))
-            {
-                int mid = (int)Mathf.Clamp(value, 0f, maxEnergy);
-                if (mid == maxEnergy)
-                {
-                    currentEnergy = 0;
-                    playerHealth.CurrentHealth += 1;
-                }
-                else
-                {
-                    currentEnergy = mid;
-                }
-            }
-
+            base.CurrentEnergy = value;
             EnergySetEvent?.Invoke(CurrentEnergy, maxEnergy);
         }
     }
@@ -36,9 +23,10 @@ public class PlayerEnergy : EnergyControl
     public delegate void EnergySet(float currentEnergy, float maxEnery);
     public event EnergySet EnergySetEvent;
 
-    private void Awake()
+    protected override void Awake()
     {
+        base.Awake();
+
         playerHealth = GetComponent<PlayerHealth>();
-        CurrentEnergy = 0;
     }
 }

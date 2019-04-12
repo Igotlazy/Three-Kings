@@ -81,7 +81,7 @@ public class PlayerHealth : HealthControl
     {
         base.AliveHit();
 
-        CameraManager.instance.CameraShake(new CameraManager.Shake(5f, 1.5f, 0.3f));
+        CameraManager.instance.AddShake(new CameraManager.Shake(5f, 1.5f, 0.3f));
         GameController.instance.TimeScaleSlowDown(0.01f, 0.3f, 0.2f);
 
         if (lastAttack.damageSource.CompareTag("Hazard"))
@@ -94,7 +94,7 @@ public class PlayerHealth : HealthControl
     {
         base.Death();
 
-        CameraManager.instance.CameraShake(new CameraManager.Shake(5f, 1.5f, 1f));
+        CameraManager.instance.AddShake(new CameraManager.Shake(5f, 1.5f, 1f));
         GameController.instance.TimeScaleSlowDown(0.01f, 0.5f, 0.4f);
         GameController.instance.respawnManager.InitiateMajorRespawn();
 

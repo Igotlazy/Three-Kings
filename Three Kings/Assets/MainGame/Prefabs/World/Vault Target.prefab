@@ -4791,9 +4791,10 @@ MonoBehaviour:
   isKnockingBack: 0
   isHardKnocking: 0
   isSoftKnocking: 0
-  baseInputMultiplier: 1
-  knockbackMultiplier: 0
-  knockbackIntensity: 0
+  inputReducer: 1
+  knockbackX:
+    BaseValue: 0
+    _value: 0
 --- !u!114 &1447244373874769469
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4806,23 +4807,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a8ca36611bc015e4798728a816a3f068, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  baseInputSpeed: 0
-  totalVelocity: 0
+  baseInputSpeed:
+    BaseValue: 0
+    _value: 0
+  forces:
+    BaseValue: 0
+    _value: 0
+  outsideSourceSpeed:
+    BaseValue: 0
+    _value: 0
+  totalXVelocity: 0
   inputSensitivity: 3
   inputGravity: 3
   inputDead: 0.001
   smoothingValue: 0
-  healthControl: {fileID: 0}
-  knockbackControl: {fileID: 0}
+  lockFlip: 0
   originalTerminalVelocity: -20
   currentTerminalVelocity: 0
   groundRayLength: 0.12
-  outsideVelocitySource: 0
-  currControlType: 0
   isLookingRight: 0
   isGrounded: 0
   entityBC2D: {fileID: 0}
   entityRB2D: {fileID: 0}
+  healthControl: {fileID: 0}
+  knockbackControl: {fileID: 0}
 --- !u!58 &1447244373874769442
 CircleCollider2D:
   m_ObjectHideFlags: 0

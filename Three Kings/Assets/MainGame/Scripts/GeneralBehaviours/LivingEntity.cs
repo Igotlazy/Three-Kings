@@ -10,8 +10,12 @@ public class LivingEntity : MonoBehaviour
     [Header("ENTITY")]
     [Header("Movement:")]
     public AdvancedFloat baseInputSpeed = new AdvancedFloat();
-    public AdvancedFloat knockbackSpeed = new AdvancedFloat();
+    public AdvancedFloat forces = new AdvancedFloat();
     public AdvancedFloat outsideSourceSpeed = new AdvancedFloat();
+
+    public AdvancedVector2 baseInputVector = new AdvancedVector2();
+    public AdvancedVector2 forceVector = new AdvancedVector2();
+    public AdvancedVector2 outsideVector = new AdvancedVector2();
     [SerializeField] private float totalXVelocity;
 
     [Header("Input:")]
@@ -158,7 +162,7 @@ public class LivingEntity : MonoBehaviour
     }
     public virtual void BaseActionFixedUpdate()
     {
-        TerminalVelocityUpdate();
+        GravityUpdate();
         EntityMove();
     }
 
@@ -167,7 +171,7 @@ public class LivingEntity : MonoBehaviour
     public virtual void NoControl() { }
 
     public void EntityMove()
-    { 
+    {
         totalXVelocity = ((baseInputSpeed.Value + outsideSourceSpeed.Value) * knockbackControl.inputReducer) + knockbackControl.knockbackX.Value;
         entityRB2D.velocity = new Vector2(totalXVelocity, entityRB2D.velocity.y);
 
@@ -175,7 +179,7 @@ public class LivingEntity : MonoBehaviour
         float yVel = Mathf.Clamp(entityRB2D.velocity.y, currentTerminalVelocity, 100.0f);
         entityRB2D.velocity = new Vector2(entityRB2D.velocity.x, yVel);
     }
-    private void TerminalVelocityUpdate()
+    private void GravityUpdate()
     {
         float trueVel = originalTerminalVelocity;
 
@@ -292,8 +296,6 @@ public class LivingEntity : MonoBehaviour
     {
         if (!lockFlip)
         {
-            Debug.Log("Flip");
-
             isLookingRight = !isLookingRight;
             Vector2 localScale = transform.localScale;
             localScale.x *= -1;

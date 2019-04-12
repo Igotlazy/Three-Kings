@@ -56,18 +56,18 @@ public class AdvancedFloat
         floatModifiers.Sort(CompareModifierOrder);
     }
 
-    protected virtual bool RemoveModifier(FloatModifier mod)
+    protected virtual bool RemoveModifier(FloatModifier mod, bool hardRemove)
     {
-        if (floatModifiers.Remove(mod))
+        if ((!mod.ignoreRemove || hardRemove) && floatModifiers.Remove(mod))
         {
             mod.associatedFloat = null;
             return true;
         }
         return false;
     }
-    public virtual bool RemoveSingleModifier(FloatModifier mod)
+    public virtual bool RemoveSingleModifier(FloatModifier mod, bool hardRemove)
     {
-        bool result = RemoveModifier(mod);
+        bool result = RemoveModifier(mod, hardRemove);
         floatModifiers.Sort(CompareModifierOrder);
         return result;
     }
@@ -76,7 +76,7 @@ public class AdvancedFloat
         bool result = false;
         foreach (FloatModifier mod in mods)
         {
-            if (RemoveModifier(mod) && !result)
+            if (RemoveModifier(mod, false) && !result)
             {
                 result = true;
             }
@@ -145,7 +145,7 @@ public class AdvancedFloat
         {
             if (floatModifiers[i].TimeCheck())
             {
-                RemoveSingleModifier(floatModifiers[i]);
+                RemoveSingleModifier(floatModifiers[i], false);
             }
         }
 

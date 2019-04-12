@@ -24,6 +24,7 @@ public class FloatModifier
 
     public float duration;
     public readonly bool isTimed;
+    public bool ignoreRemove;
 
     private bool isPaused;
     public bool IsPaused
@@ -102,7 +103,7 @@ public class FloatModifier
     {
         if (associatedFloat != null)
         {
-            return associatedFloat.RemoveSingleModifier(this);
+            return associatedFloat.RemoveSingleModifier(this, true);
         }
         return false;
     }

@@ -102,6 +102,7 @@ public class BasicSlash : Ability
                         slashAttack.knockback.y *= -1;
                     }
 
+                    Debug.Log("Hit");
                     healthControl.DealDamage(slashAttack);
                 }
 
@@ -115,7 +116,7 @@ public class BasicSlash : Ability
 
         if (hitAtLeastOne)
         {
-            CameraManager.instance.CameraShake(new CameraManager.Shake(1f, 1f, 0.2f));
+            CameraManager.instance.AddShake(new CameraManager.Shake(1f, 1f, 0.2f));
 
             if (!noFullRecoil)
             {

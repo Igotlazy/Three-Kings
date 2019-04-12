@@ -84,11 +84,12 @@ public class Jump : Ability
 
     private void PJump()
     {
-        if (aEntity.IsGrounded || coyote)
+        if ((aEntity.IsGrounded || coyote) && !isJumping)
         {
             onRegularJump?.Invoke();
 
             aEntity.entityRB2D.velocity = new Vector2(aEntity.entityRB2D.velocity.x, jumpVelocity);
+
             isJumping = true;
 
             coyote = false;

@@ -152,22 +152,40 @@ public class Dash : Ability
 
         aEntity.InputAndPhysicsCleanUp();
         aEntity.SetLivingEntityState(dashState, false);
+        dashStartPos = aEntity.transform.position;
+        setStartPos = false;
     }
     float currentTime;
+    float xPos;
+    float yPos;
+    Vector3 dashStartPos;
+    bool setStartPos;
 
     private void DashMain()
     {
+        if (!setStartPos)
+        {
+            xPos = aEntity.transform.position.x;
+            yPos = aEntity.transform.position.y;
+            aEntity.transform.position = dashStartPos;
+            setStartPos = true;
+        }
 
         aEntity.entityRB2D.velocity = currentVector * dashCurve.Evaluate(currentTime / dashTime) * dashSpeed;
-        currentTime += Time.deltaTime;
 
-        if (currentTime > dashTime)
+        GroundSets();
+
+        if (currentTime >= dashTime)
         {
-            Debug.Log(aEntity.transform.position.y);
+            //Vector3 displacement = currentVector * dashSpeed * dashTime;
+            //aEntity.transform.position = dashStartPos + displacement;
+            Debug.Log(Mathf.Abs(aEntity.transform.position.x - xPos));
+            Debug.Log(Mathf.Abs(aEntity.transform.position.y - yPos));
             interCounter = interTime;
 
             aEntity.lockFlip = false;
             isDashing = false;
+
 
             if (currentVector.x > 0 && currentVector.y < 0.75f)
             {
@@ -178,8 +196,14 @@ public class Dash : Ability
                 aEntity.smoothingValue = -1;
             }
 
+
             aEntity.entityRB2D.gravityScale = 1;
             aEntity.OriginalStateSet();
+            
+        }
+        else
+        {
+            currentTime += Time.fixedDeltaTime;
         }
     }
 
@@ -217,5 +241,6 @@ public class Dash : Ability
         interCounter = 0;
         aEntity.lockFlip = false;
         isDashing = false;
+        setStartPos = false;
     }
 }
