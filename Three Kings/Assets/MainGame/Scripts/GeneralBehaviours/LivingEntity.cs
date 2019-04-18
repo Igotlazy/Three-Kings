@@ -280,11 +280,11 @@ public class LivingEntity : MonoBehaviour
         }
         else
         {
-            if (baseInputSpeed.Value < 0.0f && isLookingRight == true)
+            if (baseInputSpeed.Value < 0.0f && isLookingRight)
             {
                 EntityFlip();
             }
-            else if (baseInputSpeed.Value > 0.0f && isLookingRight == false)
+            else if (baseInputSpeed.Value > 0.0f && !isLookingRight)
             {
                 EntityFlip();
             }

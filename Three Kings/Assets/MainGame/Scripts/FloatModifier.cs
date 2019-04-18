@@ -3,7 +3,7 @@ using UnityEngine;
 [System.Serializable]
 public class FloatModifier
 {
-    private float modifierValue;
+    [SerializeField] private float modifierValue;
     public float ModifierValue
     {
         get
@@ -12,7 +12,7 @@ public class FloatModifier
         }
         set
         {
-            this.modifierValue = value;
+            modifierValue = value;
         }
     }
 
