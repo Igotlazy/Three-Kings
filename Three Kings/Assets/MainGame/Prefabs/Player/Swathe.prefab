@@ -5458,7 +5458,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   aEntity: {fileID: 0}
-  abilityActivated: 0
+  abilityActivated: 1
   dashSpeed: 21
   dashTime: 0.25
   dashCurve:
@@ -5561,14 +5561,9 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 939667208534891382}
     m_Modifications:
-    - target: {fileID: 5223502973767725950, guid: 5ced2ad953a475740a13f61907512184,
+    - target: {fileID: 3965443708923897741, guid: 5ced2ad953a475740a13f61907512184,
         type: 3}
-      propertyPath: m_Name
-      value: Vault Ready Particles
-      objectReference: {fileID: 0}
-    - target: {fileID: 5223502973767725950, guid: 5ced2ad953a475740a13f61907512184,
-        type: 3}
-      propertyPath: m_IsActive
+      propertyPath: stopAction
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2897422190441613290, guid: 5ced2ad953a475740a13f61907512184,
@@ -5626,9 +5621,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 3965443708923897741, guid: 5ced2ad953a475740a13f61907512184,
+    - target: {fileID: 5223502973767725950, guid: 5ced2ad953a475740a13f61907512184,
         type: 3}
-      propertyPath: stopAction
+      propertyPath: m_Name
+      value: Vault Ready Particles
+      objectReference: {fileID: 0}
+    - target: {fileID: 5223502973767725950, guid: 5ced2ad953a475740a13f61907512184,
+        type: 3}
+      propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
@@ -5652,15 +5652,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 8734285039207475208}
     m_Modifications:
-    - target: {fileID: 5223502973767725950, guid: 5ced2ad953a475740a13f61907512184,
+    - target: {fileID: 3965443708923897741, guid: 5ced2ad953a475740a13f61907512184,
         type: 3}
-      propertyPath: m_IsActive
+      propertyPath: stopAction
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5223502973767725950, guid: 5ced2ad953a475740a13f61907512184,
-        type: 3}
-      propertyPath: m_Name
-      value: Heal Particles
       objectReference: {fileID: 0}
     - target: {fileID: 2897422190441613290, guid: 5ced2ad953a475740a13f61907512184,
         type: 3}
@@ -5702,10 +5697,15 @@ PrefabInstance:
       propertyPath: m_LocalScale.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 3965443708923897741, guid: 5ced2ad953a475740a13f61907512184,
+    - target: {fileID: 5223502973767725950, guid: 5ced2ad953a475740a13f61907512184,
         type: 3}
-      propertyPath: stopAction
+      propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5223502973767725950, guid: 5ced2ad953a475740a13f61907512184,
+        type: 3}
+      propertyPath: m_Name
+      value: Heal Particles
       objectReference: {fileID: 0}
     - target: {fileID: 2475298588608153993, guid: 5ced2ad953a475740a13f61907512184,
         type: 3}
