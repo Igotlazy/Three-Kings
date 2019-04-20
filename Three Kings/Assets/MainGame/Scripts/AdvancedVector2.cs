@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[System.Serializable]
 public class AdvancedVector2
 {
     public AdvancedFloat X { get; private set; }
@@ -19,19 +20,28 @@ public class AdvancedVector2
         Y = y;
     }
 
-    public float XValue()
+    public float XValue
     {
-        return X.Value;
+        get
+        {
+            return X.Value;
+        }
     }
 
-    public float YValue()
+    public float YValue
     {
-        return Y.Value;
+        get
+        {
+            return Y.Value;
+        }
     }
 
-    public Vector2 Vector2Value()
+    public Vector2 Vector2Value
     {
-        return new Vector2(X.Value, Y.Value);
+        get
+        {
+            return new Vector2(X.Value, Y.Value);
+        }
     }
 
 }

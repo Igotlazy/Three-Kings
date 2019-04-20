@@ -132,7 +132,7 @@ public class PhysicsObject : MonoBehaviour
             {
                 ObjectRb2d.MovePosition(ObjectRb2d.position + moveVector);
             }
-         
+        
         }
 
         velocity = moveVector / Time.fixedDeltaTime;
@@ -168,7 +168,7 @@ public class PhysicsObject : MonoBehaviour
                 gravity.ModifierValue = Mathf.MoveTowards(gravity.ModifierValue, 0, Physics2D.gravity.y * Time.deltaTime);
                 Debug.Log(gravity.ModifierValue);
 
-                if (lastFrameCollisions.hitBottom || lastFrameCollisions.hitTop)
+                if (lastFrameCollisions.hitBottom || lastFrameCollisions.hitTop) 
                 {
                     gravity.ModifierValue = 0;
                 }
