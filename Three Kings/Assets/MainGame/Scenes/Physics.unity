@@ -362,12 +362,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: da78f9cfa0bde5b43bc0cd606242fe6a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  xMovement:
-    BaseValue: 0
-    _value: 0
-  yMovement:
-    BaseValue: 0
-    _value: 0
+  InputVector:
+    x:
+      BaseValue: 0
+      _value: 0
+    y:
+      BaseValue: 0
+      _value: 0
+  ForcesVector:
+    x:
+      BaseValue: 0
+      _value: 0
+    y:
+      BaseValue: 0
+      _value: 0
+  OutsideVelVector:
+    x:
+      BaseValue: 0
+      _value: 0
+    y:
+      BaseValue: 0
+      _value: 0
   gravity:
     modifierValue: 0
     multiplier: 0
@@ -389,11 +404,9 @@ MonoBehaviour:
       _value: 0
     additionTime: 0
   hasGravity: 1
-  terminalVelocity: -20
-  rb: {fileID: 0}
-  velocity: {x: 0, y: 0}
-  isGrounded: 0
+  terminalVelocity: -1000
   groundRayLength: 0.05
+  velocity: {x: 0, y: 0}
 --- !u!50 &842764110
 Rigidbody2D:
   serializedVersion: 4
@@ -449,7 +462,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 842764108}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 38.13, y: 1.72, z: 0.2890625}
+  m_LocalPosition: {x: 40.76, y: 3, z: 0.2890625}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 456517738}

@@ -53,7 +53,7 @@ public class FloatModifier
 
     public AdvancedFloat associatedFloat;
 
-    public float additionTime;
+    public float timeofAddition;
 
     public enum FloatModType
     {
@@ -69,6 +69,7 @@ public class FloatModifier
         this.order = order;
         this.source = source;
         this.duration = duration;
+        timeLeft = duration;
 
         if (duration > 0)
         {
@@ -84,19 +85,42 @@ public class FloatModifier
     public FloatModifier(float value, FloatModType type, object source, float duration) : this(value, type, (int)type, source, duration) { }
 
 
-    public bool TimeCheck()
+    public bool UpdateTime()
     {
         if (isTimed && !isPaused)
         {
-            timeLeft = duration - (Time.time - additionTime - totalPauseTime);
+            
+            if(associatedFloat != null && associatedFloat.ApplyTimeClamp)
+            {
+                timeLeft -= associatedFloat.TimeClampStep;
+            }
+            else
+            {
+                timeLeft = duration - (Time.time - timeofAddition - totalPauseTime);
+            }
+            
 
-            if(timeLeft < 0)
+            if (timeLeft < 0)
             {
                 return true;
             }
             return false;
         }
         return false;
+    }
+
+    public float ModifierValueWithClamp(float step)
+    {
+        if (isTimed && type == FloatModType.Flat)
+        {
+            float result = TimeClamp(duration - timeLeft, duration, step) * ModifierValue;
+            Debug.Log(result);
+            return result;
+        }
+        else
+        {
+            return ModifierValue;
+        }
     }
 
     public bool RemoveFromFloat()
@@ -106,5 +130,25 @@ public class FloatModifier
             return associatedFloat.RemoveSingleModifier(this, true);
         }
         return false;
+    }
+
+    public static float TimeClamp(float current, float target, float step)
+    {
+        if (current >= target)
+        {
+            return 0;
+        }
+
+        float normalAdd = current + step;
+
+        if (normalAdd <= target)
+        {
+            return 1;
+        }
+        else
+        {
+            float over = normalAdd - target;
+            return (step - over) / step;
+        }
     }
 }

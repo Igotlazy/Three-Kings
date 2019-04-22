@@ -5,8 +5,31 @@ using UnityEngine;
 [System.Serializable]
 public class AdvancedVector2
 {
-    public AdvancedFloat X { get; private set; }
-    public AdvancedFloat Y { get; private set; }
+    [SerializeField] private AdvancedFloat x;
+    public AdvancedFloat X
+    {
+        get
+        {
+            return x;
+        }
+        private set
+        {
+            x = value;
+        }
+    }
+
+    [SerializeField] private AdvancedFloat y;
+    public AdvancedFloat Y
+    {
+        get
+        {
+            return y;
+        }
+        private set
+        {
+           y = value;
+        }
+    }
 
     public AdvancedVector2()
     {
@@ -14,10 +37,10 @@ public class AdvancedVector2
         Y = new AdvancedFloat();
     }
 
-    public AdvancedVector2(AdvancedFloat x, AdvancedFloat y)
+    public AdvancedVector2(AdvancedFloat newX, AdvancedFloat newY)
     {
-        X = x;
-        Y = y;
+        X = newX;
+        Y = newY;
     }
 
     public float XValue
@@ -28,6 +51,11 @@ public class AdvancedVector2
         }
     }
 
+    public float XValueTimeClamp(float step)
+    {
+        return x.TimeClampedValue(step);
+    }
+
     public float YValue
     {
         get
@@ -36,12 +64,22 @@ public class AdvancedVector2
         }
     }
 
+    public float YValueTimeClamp(float step)
+    {
+        return y.TimeClampedValue(step);
+    }
+
     public Vector2 Vector2Value
     {
         get
         {
             return new Vector2(X.Value, Y.Value);
         }
+    }
+
+    public Vector2 Vector2ValueTimeClamp(float step)
+    {
+        return new Vector2(X.TimeClampedValue(step), Y.TimeClampedValue(step));
     }
 
 }

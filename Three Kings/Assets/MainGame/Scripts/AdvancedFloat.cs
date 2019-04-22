@@ -14,10 +14,22 @@ public class AdvancedFloat
     {
         get
         {
+            ApplyTimeClamp = false;
+            TimeClampStep = 0;
             _value = CalculateFinalValue();
             return _value;
         }
     }
+
+    public virtual float TimeClampedValue(float step)
+    {
+        ApplyTimeClamp = true;
+        TimeClampStep = step;
+        _value = CalculateFinalValue();
+        return _value;
+    }
+    public bool ApplyTimeClamp { get; protected set; }
+    public float TimeClampStep { get; protected set; }
 
     protected readonly List<FloatModifier> floatModifiers;
     public readonly ReadOnlyCollection<FloatModifier> FloatModifiers;
@@ -39,7 +51,7 @@ public class AdvancedFloat
         mod.associatedFloat = this;
         if (mod.isTimed)
         {
-            mod.additionTime = Time.time;
+            mod.timeofAddition = Time.time;
         }
     }
     public virtual void AddSingleModifier(FloatModifier mod)
@@ -141,13 +153,6 @@ public class AdvancedFloat
         float sumPercentAdd = 0;
 
         //floatModifiers.Sort(CompareModifierOrder);
-        for(int i = floatModifiers.Count - 1; i >= 0; i--)
-        {
-            if (floatModifiers[i].TimeCheck())
-            {
-                RemoveSingleModifier(floatModifiers[i], false);
-            }
-        }
 
         for (int i = 0; i < floatModifiers.Count; i++)
         {
@@ -155,7 +160,14 @@ public class AdvancedFloat
 
             if (mod.type == FloatModifier.FloatModType.Flat)
             {
-                finalValue += mod.ModifierValue;
+                if (ApplyTimeClamp)
+                {
+                    finalValue += mod.ModifierValueWithClamp(TimeClampStep);
+                }
+                else
+                {
+                    finalValue += mod.ModifierValue;
+                }
             }
             else if (mod.type == FloatModifier.FloatModType.PercentAdd)
             {
@@ -170,6 +182,14 @@ public class AdvancedFloat
             else if (mod.type == FloatModifier.FloatModType.PercentMult)
             {
                 finalValue *= mod.ModifierValue; //If you want to do increases, it needs to start at 1.
+            }
+        }
+
+        for (int i = floatModifiers.Count - 1; i >= 0; i--)
+        {
+            if (floatModifiers[i].UpdateTime())
+            {
+                RemoveSingleModifier(floatModifiers[i], false);
             }
         }
 

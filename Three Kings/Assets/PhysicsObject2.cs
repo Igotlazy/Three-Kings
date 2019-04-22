@@ -24,7 +24,19 @@ public class PhysicsObject2 : MonoBehaviour
     public Collider2D ObjectBc2d { get; private set; }
 
     [Header("Feedback:")]
-    public Vector2 velocity = Vector2.zero;
+    [SerializeField] private Vector2 velocity = Vector2.zero;
+    public Vector2 Velocity
+    {
+        get
+        {
+            return velocity;
+        }
+        set
+        {
+            ObjectRb2d.velocity = value;
+            velocity = value;
+        }
+    }
 
 
     void Start()
@@ -33,8 +45,7 @@ public class PhysicsObject2 : MonoBehaviour
         ObjectBc2d = GetComponent<Collider2D>();
 
         xInput = new FloatModifier(7, FloatModifier.FloatModType.Flat);
-        gravity = new FloatModifier(0, FloatModifier.FloatModType.Flat);
-        gravity.ignoreRemove = true;
+        gravity = new FloatModifier(0, FloatModifier.FloatModType.Flat) {ignoreRemove = true};
 
         groundMask = (1 << LayerMask.NameToLayer("Ground - Soft")) | (1 << LayerMask.NameToLayer("Ground - Hard"));
 
@@ -56,44 +67,63 @@ public class PhysicsObject2 : MonoBehaviour
             gravity.ModifierValue = 0;
             isJumping = false;
         }
+        if (Input.GetKeyDown(KeyCode.G))
+        {
+            go = true;
+            time = 0;
+            startPos = ObjectRb2d.position;
+            totalDis = 0;
+        }
+        if (Input.GetKeyDown(KeyCode.H))
+        {
+            ForcesVector.X.AddSingleModifier(new FloatModifier(100f, FloatModifier.FloatModType.Flat, 0.5f));
+        }
 
         xInput.multiplier = Input.GetAxis("Horizontal");
+        
     }
     bool isJumping;
 
+    Vector2 startPos;
+    bool go;
+    float time;
+
     private void FixedUpdate()
     {
-        velocity = new Vector2(CalculateXMovement(), CalculateYMovement());
-        MoveObject(velocity);
-    }
+        //velocity = new Vector2(CalculateXMovement(), CalculateYMovement());
 
-    private float TimeClamp(float current, float target, float step)
-    {
-        if(current > target)
+        if (go)
         {
-            return 0;
-        }
+            if(time < 1)
+            {
+                float clamp = FloatModifier.TimeClamp(time, 1f, Time.fixedDeltaTime);
+                Velocity = (new Vector2(-5, 0) * clamp);
+                totalDis += Velocity.magnitude * Time.fixedDeltaTime;
+                //Debug.Log("Clamp Value: " + clamp + " Velocity: " + velocity + " TotalDis: " + totalDis);
 
-        float normalAdd = current + step;
-        if(normalAdd <= target)
+                time += Time.fixedDeltaTime;
+            }
+            else
+            {
+                Velocity = Vector2.zero;
+                go = false;
+                Debug.Log("Math Dis: " + totalDis);
+                Debug.Log("Real Dis: " + (ObjectRb2d.position - startPos).magnitude);
+            }
+        }
+        else
         {
-            return step;
+            Velocity = new Vector2(CalculateXMovement(), CalculateYMovement());
         }
-
-        float over = normalAdd - target;
-
-        return step * (1 - (over / normalAdd));
     }
-
-    private void MoveObject(Vector2 deltaMove)
-    {
-        //ObjectRb2d.MovePosition(ObjectRb2d.position + deltaMove);
-        ObjectRb2d.velocity = deltaMove;
-    }
+    float totalDis;
 
     float CalculateXMovement()
     {
-        return InputVector.XValue + ForcesVector.XValue + OutsideVelVector.XValue;
+        float fix = Time.fixedDeltaTime;
+        return InputVector.XValueTimeClamp(fix) 
+            + ForcesVector.XValueTimeClamp(fix) 
+            + OutsideVelVector.XValueTimeClamp(fix);
     }
 
     float CalculateYMovement()
@@ -118,7 +148,10 @@ public class PhysicsObject2 : MonoBehaviour
             gravity.ModifierValue = Mathf.MoveTowards(gravity.ModifierValue, 0, Mathf.Abs(Physics2D.gravity.y) * Time.fixedDeltaTime);
         }
 
-        return InputVector.YValue + ForcesVector.YValue + OutsideVelVector.YValue;
+        float fix = Time.fixedDeltaTime;
+        return InputVector.YValueTimeClamp(fix) 
+            + ForcesVector.YValueTimeClamp(fix) 
+            + OutsideVelVector.YValueTimeClamp(fix);
     }
 
     private void GroundCheck()

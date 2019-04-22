@@ -41,8 +41,6 @@ public class GameController : MonoBehaviour
         }
     }
 
-    bool time;
-
 
     public void TimeScaleSlowDown(float startSlow, float holdTime, float timeToRecover)
     {
