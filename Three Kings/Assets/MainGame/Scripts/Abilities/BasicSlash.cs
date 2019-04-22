@@ -168,10 +168,10 @@ public class BasicSlash : Ability
     }
     private void DownRecoil()
     {
-        if (currSlashTrans == slashUpTrans && aEntity.entityRB2D.velocity.y > 0)
+        if (currSlashTrans == slashUpTrans && aEntity.EntityVelocity.y > 0)
         {
             GameController.instance.TimeScaleSlowDown(0, 0.03f, 0f);
-            aEntity.entityRB2D.velocity = new Vector2(aEntity.entityRB2D.velocity.x, -2);
+            aEntity.gravity.ModifierValue = -2f;
         }
     }
     private void UpRecoil()//Pogo
@@ -180,7 +180,7 @@ public class BasicSlash : Ability
         {
             onPogo?.Invoke();
             Debug.Log("Down Slash");
-            aEntity.entityRB2D.velocity = new Vector2(aEntity.entityRB2D.velocity.x, pogoVelocity);
+            aEntity.gravity.ModifierValue = pogoVelocity;
         }
     }
 

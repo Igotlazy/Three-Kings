@@ -74,7 +74,7 @@ public class RespawnManager : MonoBehaviour
         Player.instance.DisableHitboxAndVisuals();
         Player.instance.SetLivingEntityState(respawnState, false);
         Player.instance.InputAndPhysicsCleanUp();
-        Player.instance.entityRB2D.bodyType = RigidbodyType2D.Kinematic;
+        Player.instance.EntityRB2D.bodyType = RigidbodyType2D.Kinematic;
 
         yield return new WaitForSeconds(1);
         UIManager.instance.ToggleFade();
@@ -105,7 +105,7 @@ public class RespawnManager : MonoBehaviour
 
         UIManager.instance.ToggleFade();
 
-        Player.instance.entityRB2D.bodyType = RigidbodyType2D.Dynamic;
+        Player.instance.EntityRB2D.bodyType = RigidbodyType2D.Dynamic;
         Player.instance.OriginalStateSet();
     }
 }

@@ -69,9 +69,9 @@ public class FocusHeal : Ability
     {
         isHealing = true;
 
-        if (!aEntity.baseInputSpeed.FloatModifiers.Contains(speedReducer))
+        if (!aEntity.InputVector.X.FloatModifiers.Contains(speedReducer))
         {
-            aEntity.baseInputSpeed.AddSingleModifier(speedReducer);
+            aEntity.InputVector.X.AddSingleModifier(speedReducer);
         }
         aEntity.SetLivingEntityState(focusState, false);
         hasPayed = false;
@@ -125,7 +125,7 @@ public class FocusHeal : Ability
         healTimer = 0;
         CameraManager.instance.RemoveShake(progressShake);
         healProgressParticles.SetActive(false);
-        aEntity.baseInputSpeed.RemoveSingleModifier(speedReducer, false);
+        aEntity.InputVector.X.RemoveSingleModifier(speedReducer, false);
     }
 
 

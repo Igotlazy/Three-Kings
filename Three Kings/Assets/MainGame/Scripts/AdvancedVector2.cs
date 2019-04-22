@@ -82,4 +82,10 @@ public class AdvancedVector2
         return new Vector2(X.TimeClampedValue(step), Y.TimeClampedValue(step));
     }
 
+    public void RemoveAllModifiers()
+    {
+        X.RemoveAllModifiers();
+        Y.RemoveAllModifiers();
+    }
+
 }

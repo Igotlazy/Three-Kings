@@ -148,7 +148,6 @@ public class Dash : Ability
         isDashing = true;
 
         currentTime = 0;
-        aEntity.entityRB2D.gravityScale = 0;
 
         aEntity.InputAndPhysicsCleanUp();
         aEntity.SetLivingEntityState(dashState, false);
@@ -171,7 +170,8 @@ public class Dash : Ability
             setStartPos = true;
         }
 
-        aEntity.entityRB2D.velocity = currentVector * dashCurve.Evaluate(currentTime / dashTime) * dashSpeed;
+        Vector2 dashVel = currentVector * dashCurve.Evaluate(currentTime / dashTime) * dashSpeed /** FloatModifier.TimeClamp(currentTime, dashTime, Time.fixedDeltaTime)*/;
+        aEntity.EntityVelocity = dashVel;
 
         GroundSets();
 
@@ -196,10 +196,8 @@ public class Dash : Ability
                 aEntity.smoothingValue = -1;
             }
 
-
-            aEntity.entityRB2D.gravityScale = 1;
-            aEntity.OriginalStateSet();
-            
+            aEntity.gravity.ModifierValue = dashVel.y;
+            aEntity.OriginalStateSet();           
         }
         else
         {
@@ -210,8 +208,7 @@ public class Dash : Ability
 
     private void PDashCancel()
     {
-        aEntity.entityRB2D.gravityScale = 1;
-        aEntity.entityRB2D.velocity = Vector2.zero;
+        aEntity.EntityVelocity = Vector2.zero;
 
         interCounter = 0;
         aEntity.lockFlip = false;
@@ -237,7 +234,7 @@ public class Dash : Ability
     public void CancelState()
     {
         Debug.Log("Dash Cancelled");
-        aEntity.entityRB2D.gravityScale = 1;
+        aEntity.EntityRB2D.gravityScale = 1;
         interCounter = 0;
         aEntity.lockFlip = false;
         isDashing = false;

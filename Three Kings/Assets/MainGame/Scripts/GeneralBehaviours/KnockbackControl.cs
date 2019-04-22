@@ -11,18 +11,17 @@ public class KnockbackControl : MonoBehaviour
     public bool isSoftKnocking;
     private LivingEntity entity;
 
-    public float inputReducer = 1;
-
-    public AdvancedFloat knockbackX;
-    private FloatModifier xMod;
+    private FloatModifier knockForce;
+    private FloatModifier inputNullifer;
 
 
 
     private void Start()
     {
         entity = GetComponent<LivingEntity>();
-        xMod = new FloatModifier(0, FloatModifier.FloatModType.PercentMult, this);
-        knockbackX.AddSingleModifier(xMod);
+        knockForce = new FloatModifier(0, FloatModifier.FloatModType.Flat, this);
+        inputNullifer = new FloatModifier(0, FloatModifier.FloatModType.PercentMult, this);
+        //knockbackX.AddSingleModifier(knockForce);
     }
 
     public virtual void StartKnockback(Vector2 knock, float xInitialDur, float xSubDur)
@@ -46,19 +45,28 @@ public class KnockbackControl : MonoBehaviour
 
         if (knock.y != 0)
         {
-            entity.entityRB2D.velocity = new Vector2(entity.entityRB2D.velocity.x, knock.y);
+            entity.gravity.ModifierValue = knock.y;
         }
         if (knock.x != 0)
         {
             isHardKnocking = true;
-
-            inputReducer = 0;
             entity.smoothingValue = 0;
-            xMod.ModifierValue = 1;
 
-            knockbackX.BaseValue = knock.x;
+            if (!entity.InputVector.X.FloatModifiers.Contains(inputNullifer))
+            {
+                entity.InputVector.X.AddSingleModifier(inputNullifer);
+            }
+            if (!entity.ForcesVector.X.FloatModifiers.Contains(knockForce))
+            {
+                entity.ForcesVector.X.AddSingleModifier(knockForce);
+            }
 
-            while(internalTime <= initialDur)
+            inputNullifer.ModifierValue = 0;
+
+            knockForce.ModifierValue = knock.x;
+            knockForce.multiplier = 1;
+
+            while (internalTime <= initialDur)
             {
                 internalTime += Time.fixedDeltaTime;
                 yield return waitForFix;
@@ -66,23 +74,27 @@ public class KnockbackControl : MonoBehaviour
 
             isHardKnocking = false;
 
-            while (!(inputReducer == 1 && xMod.ModifierValue == 0))
+            while (!(inputNullifer.ModifierValue == 1 && knockForce.multiplier == 0))
             {
                 if (internalTime <= (initialDur + subDur))
                 {
                     isSoftKnocking = true;
                     knockbackSubLerpTime = (internalTime - initialDur) / subDur;
-                    inputReducer = Mathf.Lerp(0f, 1f, knockbackSubLerpTime);
-                    xMod.ModifierValue = Mathf.Lerp(1f, 0f, knockbackSubLerpTime);
+                    inputNullifer.ModifierValue = Mathf.Lerp(0f, 1f, knockbackSubLerpTime);
+                    knockForce.multiplier = Mathf.Lerp(1f, 0f, knockbackSubLerpTime);
 
                     internalTime += Time.fixedDeltaTime;
                     yield return waitForFix;
                 }
                 else
                 {
-                    inputReducer = 1;
-                    knockbackX.BaseValue = 0;
-                    xMod.ModifierValue = 0;
+                    inputNullifer.ModifierValue = 1;
+                    knockForce.multiplier = 0;
+                    knockForce.ModifierValue = 0;
+
+                    entity.InputVector.X.RemoveSingleModifier(inputNullifer, false);
+                    entity.ForcesVector.X.RemoveSingleModifier(knockForce, false);
+
                     isSoftKnocking = false;
                 }
             }
@@ -97,9 +109,12 @@ public class KnockbackControl : MonoBehaviour
         {
             StopCoroutine(lastKnockback);
 
-            inputReducer = 1;
-            knockbackX.BaseValue = 0;
-            xMod.ModifierValue = 0;
+            inputNullifer.ModifierValue = 1;
+            knockForce.multiplier = 0;
+            knockForce.ModifierValue = 0;
+
+            entity.InputVector.X.RemoveSingleModifier(inputNullifer, false);
+            entity.ForcesVector.X.RemoveSingleModifier(knockForce, false);
 
             isSoftKnocking = false;
             isHardKnocking = false;

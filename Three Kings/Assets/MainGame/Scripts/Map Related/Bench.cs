@@ -42,7 +42,7 @@ public class Bench : Interactable
     {
         if (interacting && !isSitting)
         {
-            swathe.entityRB2D.MovePosition(swathe.transform.position + ((sitPosition.position - swathe.transform.position) * Time.deltaTime * sitSpeed));
+            swathe.EntityRB2D.MovePosition(swathe.transform.position + ((sitPosition.position - swathe.transform.position) * Time.deltaTime * sitSpeed));
             if ((swathe.transform.position - sitPosition.position).magnitude < 0.02f)
             {
                 isSitting = true;
@@ -58,7 +58,7 @@ public class Bench : Interactable
 
     private void BenchCancel()
     {
-        swathe.entityRB2D.bodyType = RigidbodyType2D.Dynamic;
+        swathe.EntityRB2D.bodyType = RigidbodyType2D.Dynamic;
         interacting = false;
         isSitting = false;
     }
@@ -67,7 +67,7 @@ public class Bench : Interactable
     {
         swathe.SetLivingEntityState(benchState, false);
         swathe.InputAndPhysicsCleanUp();
-        swathe.entityRB2D.bodyType = RigidbodyType2D.Kinematic;
+        swathe.EntityRB2D.bodyType = RigidbodyType2D.Kinematic;
         interacting = true;
     }
 

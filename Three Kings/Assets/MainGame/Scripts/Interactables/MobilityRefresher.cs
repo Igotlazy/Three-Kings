@@ -16,7 +16,7 @@ public class MobilityRefresher : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if(collision == Player.instance.entityBC2D)
+        if(collision == Player.instance.EntityBC2D)
         {
             StartCoroutine(Time());
         }

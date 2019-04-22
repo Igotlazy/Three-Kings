@@ -21,7 +21,7 @@ public abstract class Interactable : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision == Player.instance.entityBC2D)
+        if (collision == Player.instance.EntityBC2D)
         {
             inRange = true;
             Player.instance.interactableMethod = Interact;
@@ -29,7 +29,7 @@ public abstract class Interactable : MonoBehaviour
     }
     private void OnTriggerExit2D(Collider2D collision)
     {
-        if (collision == Player.instance.entityBC2D)
+        if (collision == Player.instance.EntityBC2D)
         {
             inRange = false;
             Player.instance.interactableMethod -= Interact;

@@ -87,7 +87,7 @@ public class WallJump : Ability
 
     private void PWallJumpSensor()
     {
-        float rayLength = aEntity.entityBC2D.size.x / 2 + wallJumpRayLength;
+        float rayLength = aEntity.EntityBC2D.size.x / 2 + wallJumpRayLength;
         Vector2 wallJumpRayDir = Vector2.right;
 
         if (!aEntity.isLookingRight)

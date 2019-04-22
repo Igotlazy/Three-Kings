@@ -4872,14 +4872,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   aEntity: {fileID: 0}
   abilityActivated: 1
-  cost: 1
+  cost: 5
   timeBetweenCasts: 0.5
   completeTime: 1
   paymentTime: 30
   speedReductionPercent: 0.4
   isHealing: 0
   hasPayed: 0
-  healProgressParticles: {fileID: 1085147910000547038}
+  healProgressParticles: {fileID: 8104986238747885613}
   healthFinishParticles: {fileID: 2946352301109042578, guid: e66978adcfe104343b48e091f29d4e25,
     type: 3}
 --- !u!1 &4050108717589138342
@@ -5027,12 +5027,12 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8298036903298970185}
-  - component: {fileID: 8350669571530416571}
-  - component: {fileID: 8325969485628579851}
+  - component: {fileID: 1977050545949648341}
   - component: {fileID: 7898908907212961726}
   - component: {fileID: 6157357333327104295}
-  - component: {fileID: 1977050545949648341}
   - component: {fileID: 5475613651090609101}
+  - component: {fileID: 8350669571530416571}
+  - component: {fileID: 8325969485628579851}
   m_Layer: 9
   m_Name: Swathe
   m_TagString: Player
@@ -5059,53 +5059,76 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!61 &8350669571530416571
-BoxCollider2D:
+--- !u!114 &1977050545949648341
+MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8303080088518757935}
   m_Enabled: 1
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_UsedByComposite: 0
-  m_Offset: {x: 0, y: -0.1}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0, y: 0}
-    oldSize: {x: 0, y: 0}
-    newSize: {x: 0, y: 0}
-    adaptiveTilingThreshold: 0
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  serializedVersion: 2
-  m_Size: {x: 0.6, y: 1.8}
-  m_EdgeRadius: 0
---- !u!50 &8325969485628579851
-Rigidbody2D:
-  serializedVersion: 4
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8303080088518757935}
-  m_BodyType: 0
-  m_Simulated: 1
-  m_UseFullKinematicContacts: 0
-  m_UseAutoMass: 0
-  m_Mass: 1
-  m_LinearDrag: 0
-  m_AngularDrag: 0.05
-  m_GravityScale: 1
-  m_Material: {fileID: 6200000, guid: 03df06f8bb844b14d92463c7e1d22d84, type: 2}
-  m_Interpolate: 1
-  m_SleepingMode: 0
-  m_CollisionDetection: 1
-  m_Constraints: 4
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e568596f5866814e93d8adb1b1da29c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  InputVector:
+    x:
+      BaseValue: 0
+      _value: 0
+    y:
+      BaseValue: 0
+      _value: 0
+  ForcesVector:
+    x:
+      BaseValue: 0
+      _value: 0
+    y:
+      BaseValue: 0
+      _value: 0
+  OutsideVelVector:
+    x:
+      BaseValue: 0
+      _value: 0
+    y:
+      BaseValue: 0
+      _value: 0
+  gravity:
+    modifierValue: 0
+    multiplier: 0
+    duration: 0
+    ignoreRemove: 0
+    timeLeft: 0
+    associatedFloat:
+      BaseValue: 0
+      _value: 0
+    timeofAddition: 0
+  hasGravity: 1
+  inputSensitivity: 6
+  inputGravity: 10
+  inputDead: 0.2
+  smoothingValue: 0
+  lockFlip: 0
+  velocity: {x: 0, y: 0}
+  originalTerminalVelocity: -18.5
+  currentTerminalVelocity: 0
+  groundRayLength: 0.08
+  isLookingRight: 0
+  isGrounded: 0
+  healthControl: {fileID: 0}
+  knockbackControl: {fileID: 0}
+  InputMultiplier: 6.5
+  hurtBox: {fileID: 6880830872787278772}
+  sprite: {fileID: 4050108717589138343}
+  swatheHealth: {fileID: 0}
+  swatheEnergy: {fileID: 0}
+  jumpAbility: {fileID: 1063412304905446629}
+  wallJumpAbility: {fileID: 6535557672168616424}
+  dashAbility: {fileID: 3750459823692642058}
+  glideAbility: {fileID: 4480228425601285928}
+  vaultAbility: {fileID: 8384631646720675682}
+  slashAbility: {fileID: 6576644313721216597}
+  blastAbility: {fileID: 9153918276218839021}
+  focusHealAbility: {fileID: 672935267}
 --- !u!114 &7898908907212961726
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5142,56 +5165,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   currentEnergy: 5
-  maxEnergy: 5
---- !u!114 &1977050545949648341
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8303080088518757935}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1e568596f5866814e93d8adb1b1da29c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  baseInputSpeed:
-    BaseValue: 0
-    _value: 0
-  forces:
-    BaseValue: 0
-    _value: 0
-  outsideSourceSpeed:
-    BaseValue: 0
-    _value: 0
-  totalXVelocity: 0
-  inputSensitivity: 6
-  inputGravity: 10
-  inputDead: 0.2
-  smoothingValue: 0
-  lockFlip: 0
-  originalTerminalVelocity: -18.5
-  currentTerminalVelocity: 0
-  groundRayLength: 0.08
-  isLookingRight: 0
-  isGrounded: 0
-  entityBC2D: {fileID: 0}
-  entityRB2D: {fileID: 0}
-  healthControl: {fileID: 0}
-  knockbackControl: {fileID: 0}
-  InputMultiplier: 6.5
-  hurtBox: {fileID: 6880830872787278772}
-  sprite: {fileID: 4050108717589138343}
-  swatheHealth: {fileID: 0}
-  swatheEnergy: {fileID: 0}
-  jumpAbility: {fileID: 1063412304905446629}
-  wallJumpAbility: {fileID: 6535557672168616424}
-  dashAbility: {fileID: 3750459823692642058}
-  glideAbility: {fileID: 4480228425601285928}
-  vaultAbility: {fileID: 8384631646720675682}
-  slashAbility: {fileID: 6576644313721216597}
-  blastAbility: {fileID: 9153918276218839021}
-  focusHealAbility: {fileID: 672935267}
+  maxEnergy: 25
 --- !u!114 &5475613651090609101
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5207,10 +5181,53 @@ MonoBehaviour:
   isKnockingBack: 0
   isHardKnocking: 0
   isSoftKnocking: 0
-  inputReducer: 1
-  knockbackX:
-    BaseValue: 0
-    _value: 0
+--- !u!61 &8350669571530416571
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8303080088518757935}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 6200000, guid: 03df06f8bb844b14d92463c7e1d22d84, type: 2}
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: -0.1}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0, y: 0}
+    oldSize: {x: 0, y: 0}
+    newSize: {x: 0, y: 0}
+    adaptiveTilingThreshold: 0
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 0.6, y: 1.8}
+  m_EdgeRadius: 0
+--- !u!50 &8325969485628579851
+Rigidbody2D:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8303080088518757935}
+  m_BodyType: 0
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDrag: 0
+  m_AngularDrag: 0.05
+  m_GravityScale: 0
+  m_Material: {fileID: 6200000, guid: 03df06f8bb844b14d92463c7e1d22d84, type: 2}
+  m_Interpolate: 1
+  m_SleepingMode: 0
+  m_CollisionDetection: 1
+  m_Constraints: 4
 --- !u!1 &8303747959718367297
 GameObject:
   m_ObjectHideFlags: 0
@@ -5654,13 +5671,13 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 5223502973767725950, guid: 5ced2ad953a475740a13f61907512184,
         type: 3}
-      propertyPath: m_IsActive
-      value: 0
+      propertyPath: m_Name
+      value: Heal Particles
       objectReference: {fileID: 0}
     - target: {fileID: 5223502973767725950, guid: 5ced2ad953a475740a13f61907512184,
         type: 3}
-      propertyPath: m_Name
-      value: Heal Particles
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2897422190441613290, guid: 5ced2ad953a475740a13f61907512184,
         type: 3}
@@ -5669,8 +5686,13 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2897422190441613290, guid: 5ced2ad953a475740a13f61907512184,
         type: 3}
-      propertyPath: m_RootOrder
-      value: 1
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2897422190441613290, guid: 5ced2ad953a475740a13f61907512184,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2897422190441613290, guid: 5ced2ad953a475740a13f61907512184,
         type: 3}
@@ -5689,12 +5711,27 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2897422190441613290, guid: 5ced2ad953a475740a13f61907512184,
         type: 3}
-      propertyPath: m_LocalPosition.y
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2897422190441613290, guid: 5ced2ad953a475740a13f61907512184,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2897422190441613290, guid: 5ced2ad953a475740a13f61907512184,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2897422190441613290, guid: 5ced2ad953a475740a13f61907512184,
         type: 3}
-      propertyPath: m_LocalPosition.z
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2897422190441613290, guid: 5ced2ad953a475740a13f61907512184,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2897422190441613290, guid: 5ced2ad953a475740a13f61907512184,
@@ -5717,11 +5754,6 @@ PrefabInstance:
       propertyPath: InitialModule.startColor.maxColor.g
       value: 1
       objectReference: {fileID: 0}
-    - target: {fileID: 2475298588608153993, guid: 5ced2ad953a475740a13f61907512184,
-        type: 3}
-      propertyPath: InitialModule.startColor.maxColor.b
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 6452843708387984667, guid: 5ced2ad953a475740a13f61907512184,
         type: 3}
       propertyPath: InitialModule.startColor.maxColor.r
@@ -5732,11 +5764,6 @@ PrefabInstance:
       propertyPath: InitialModule.startColor.maxColor.g
       value: 1
       objectReference: {fileID: 0}
-    - target: {fileID: 6452843708387984667, guid: 5ced2ad953a475740a13f61907512184,
-        type: 3}
-      propertyPath: InitialModule.startColor.maxColor.b
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 7637407951335785231, guid: 5ced2ad953a475740a13f61907512184,
         type: 3}
       propertyPath: InitialModule.startColor.maxColor.r
@@ -5745,24 +5772,19 @@ PrefabInstance:
     - target: {fileID: 7637407951335785231, guid: 5ced2ad953a475740a13f61907512184,
         type: 3}
       propertyPath: InitialModule.startColor.maxColor.g
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7637407951335785231, guid: 5ced2ad953a475740a13f61907512184,
-        type: 3}
-      propertyPath: InitialModule.startColor.maxColor.b
       value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5ced2ad953a475740a13f61907512184, type: 3}
---- !u!4 &1167162846538839225 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 2897422190441613290, guid: 5ced2ad953a475740a13f61907512184,
+--- !u!1 &8104986238747885613 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5223502973767725950, guid: 5ced2ad953a475740a13f61907512184,
     type: 3}
   m_PrefabInstance: {fileID: 4037246500405801811}
   m_PrefabAsset: {fileID: 0}
---- !u!198 &1085147910000547038 stripped
-ParticleSystem:
-  m_CorrespondingSourceObject: {fileID: 3965443708923897741, guid: 5ced2ad953a475740a13f61907512184,
+--- !u!4 &1167162846538839225 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 2897422190441613290, guid: 5ced2ad953a475740a13f61907512184,
     type: 3}
   m_PrefabInstance: {fileID: 4037246500405801811}
   m_PrefabAsset: {fileID: 0}

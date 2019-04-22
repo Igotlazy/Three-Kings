@@ -35,6 +35,18 @@ public class Player : LivingEntity
 
     public Action interactableMethod;
 
+    public override Vector2 EntityVelocity
+    {
+        get
+        {
+            return base.EntityVelocity;
+        }
+        set
+        {
+            base.EntityVelocity = value;
+        }
+    }
+
 
     protected override void Awake()
     {
@@ -50,7 +62,7 @@ public class Player : LivingEntity
             Destroy(this.gameObject);
         }
 
-        hurtBox.size = new Vector3(entityBC2D.size.x - 0.03f, hurtBox.size.y);
+        hurtBox.size = new Vector3(EntityBC2D.size.x - 0.03f, hurtBox.size.y);
 
         swatheHealth = (PlayerHealth)healthControl;
         swatheEnergy = GetComponent<PlayerEnergy>();
@@ -86,7 +98,7 @@ public class Player : LivingEntity
     {
         base.BaseActionControl();
 
-        baseInputSpeed.BaseValue = InputSmoothing("Horizontal") * InputMultiplier;
+        InputVector.X.BaseValue = InputSmoothing("Horizontal") * InputMultiplier;
 
         //Jumping
         if (Input.GetButtonDown("Jump"))
@@ -397,7 +409,7 @@ public class Player : LivingEntity
 
     private bool FocusHealRestric()
     {
-        if(IsGrounded && entityRB2D.velocity.y <= 0 && swatheEnergy.CurrentEnergy >= focusHealAbility.cost)
+        if(IsGrounded && EntityVelocity.y <= 0 && swatheEnergy.CurrentEnergy >= focusHealAbility.cost)
         {
             return true;
         }
@@ -407,7 +419,7 @@ public class Player : LivingEntity
     {
         base.BaseActionControl();
 
-        baseInputSpeed.BaseValue = InputSmoothing("Horizontal") * InputMultiplier;
+        InputVector.X.BaseValue = InputSmoothing("Horizontal") * InputMultiplier;
 
         if (!Input.GetKey(KeyCode.B))
         {

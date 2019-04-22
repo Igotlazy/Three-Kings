@@ -88,7 +88,7 @@ public class Jump : Ability
         {
             onRegularJump?.Invoke();
 
-            aEntity.entityRB2D.velocity = new Vector2(aEntity.entityRB2D.velocity.x, jumpVelocity);
+            aEntity.gravity.ModifierValue = jumpVelocity;
 
             isJumping = true;
 
@@ -100,8 +100,8 @@ public class Jump : Ability
         {
             onExtraJump?.Invoke();
 
-            aEntity.entityRB2D.velocity = new Vector2(aEntity.entityRB2D.velocity.x, jumpVelocity * extraJumpMultiplier);
-            Instantiate(extraJumpParticles, new Vector3(transform.position.x, transform.position.y - aEntity.entityBC2D.bounds.size.y / 2, 0f), Quaternion.identity);
+            aEntity.gravity.ModifierValue = jumpVelocity * extraJumpMultiplier;
+            Instantiate(extraJumpParticles, new Vector3(transform.position.x, transform.position.y - aEntity.EntityBC2D.bounds.size.y / 2, 0f), Quaternion.identity);
             isJumping = true;
 
             currentExtraJumps -= 1;
@@ -110,9 +110,9 @@ public class Jump : Ability
 
     private void PJumpCancel()
     {
-        if (aEntity.entityRB2D.velocity.y > 0)
+        if (aEntity.gravity.ModifierValue > 0)
         {
-            aEntity.entityRB2D.velocity = new Vector2(aEntity.entityRB2D.velocity.x, 0);
+            aEntity.gravity.ModifierValue = 0;
         }
 
         coyote = false;
@@ -125,7 +125,7 @@ public class Jump : Ability
         {
             currentExtraJumps = maxExtraJumps;
 
-            if (isJumping && aEntity.entityRB2D.velocity.y <= 0)
+            if (isJumping && aEntity.gravity.ModifierValue <= 0)
             {
                 isJumping = false;
             }

@@ -16,7 +16,7 @@ public class MiniRespawnSetter : MonoBehaviour
                 GameController.instance.respawnManager.miniRespawnData = new RespawnManager.RespawnData()
                 {
                     sceneName = SceneManager.GetActiveScene().name,
-                    respawnPosition = new Vector2(hitRay.point.x, hitRay.point.y + Player.instance.entityBC2D.size.y / 2 + 0.1f)
+                    respawnPosition = new Vector2(hitRay.point.x, hitRay.point.y + Player.instance.EntityBC2D.size.y / 2 + 0.1f)
                 };
 
                 Debug.Log("Set MiniRespawn");

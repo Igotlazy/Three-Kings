@@ -47,7 +47,7 @@ public class TalkingNPC : Interactable
         if (!moveDuringConvo)
         {
             swathe.SetLivingEntityState(npcTalkSetter, false);
-            swathe.baseInputSpeed.BaseValue = 0;
+            swathe.InputVector.X.BaseValue = 0;
             swathe.smoothingValue = 0;
         }
 

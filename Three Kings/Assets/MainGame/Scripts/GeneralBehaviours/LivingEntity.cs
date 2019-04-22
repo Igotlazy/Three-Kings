@@ -9,14 +9,14 @@ public class LivingEntity : MonoBehaviour
 {
     [Header("ENTITY")]
     [Header("Movement:")]
-    public AdvancedFloat baseInputSpeed = new AdvancedFloat();
-    public AdvancedFloat forces = new AdvancedFloat();
-    public AdvancedFloat outsideSourceSpeed = new AdvancedFloat();
 
-    public AdvancedVector2 baseInputVector = new AdvancedVector2();
-    public AdvancedVector2 forceVector = new AdvancedVector2();
-    public AdvancedVector2 outsideVector = new AdvancedVector2();
-    [SerializeField] private float totalXVelocity;
+    public AdvancedVector2 InputVector = new AdvancedVector2();
+    public AdvancedVector2 ForcesVector = new AdvancedVector2();
+    public AdvancedVector2 OutsideVelVector = new AdvancedVector2();
+
+    public FloatModifier gravity;
+    public bool hasGravity;
+
 
     [Header("Input:")]
     public float inputSensitivity = 6f;
@@ -43,37 +43,60 @@ public class LivingEntity : MonoBehaviour
     }
     public bool lockFlip;
 
+
     [Header("Physics:")]
+    [SerializeField] private Vector2 velocity = Vector2.zero;
+    public virtual Vector2 EntityVelocity
+    {
+        get
+        {
+            return velocity;
+        }
+        set
+        {
+            EntityRB2D.velocity = value;
+            velocity = value;
+        }
+    }
+
     public float originalTerminalVelocity = -20f;
     [SerializeField] private float currentTerminalVelocity;
     public List<TerminalVel> terminalVels = new List<TerminalVel>();
-    public float groundRayLength = 0.12f;
+
+    public float groundRayLength = 0.05f;
     protected LayerMask groundMask;
+
+    ContactFilter2D filter = new ContactFilter2D();
+
 
     [Header("State Bools:")]
     public bool isLookingRight;
-    [SerializeField] protected bool isGrounded;
+    [SerializeField] private bool isGrounded;
     public bool IsGrounded
     {get {return isGrounded;}}
 
 
-    [Header("References:")]
-    [HideInInspector] public BoxCollider2D entityBC2D;
-    [HideInInspector] public Rigidbody2D entityRB2D;
+
+    public BoxCollider2D EntityBC2D { get; private set; }
+    public Rigidbody2D EntityRB2D { get; private set; }
     [HideInInspector] public HealthControl healthControl;
     [HideInInspector] public KnockbackControl knockbackControl;
 
-    public Action SetControlMethod { get; private set; }
-    public Action SetActionUpdateMethod { get; private set; }
-    public Action SetActionFixedUpMethod { get; private set; }
+    public Action CurrControlMethod { get; private set; }
+    public Action CurrActionUpdateMethod { get; private set; }
+    public Action CurrActionFixedMethod { get; private set; }
 
     public StateSetter currentController;
     private StateSetter originalState;
 
+    
+
     protected virtual void Awake()
     {
-        entityRB2D = this.GetComponent<Rigidbody2D>();
-        entityBC2D = this.GetComponent<BoxCollider2D>();
+        EntityRB2D = this.GetComponent<Rigidbody2D>();
+        EntityBC2D = this.GetComponent<BoxCollider2D>();
+
+        filter.SetLayerMask(gameObject.layer);
 
         groundMask = (1 << LayerMask.NameToLayer("Ground - Soft")) | (1 << LayerMask.NameToLayer("Ground - Hard"));
 
@@ -82,7 +105,10 @@ public class LivingEntity : MonoBehaviour
         healthControl.onHitDeath += PhysicsCleanUpOnDeath;
 
         knockbackControl = GetComponent<KnockbackControl>();
-        waitForNotPaused = new WaitUntil(() => !isPaused);
+        //waitForNotPaused = new WaitUntil(() => !isPaused);
+
+        gravity = new FloatModifier(0, FloatModifier.FloatModType.Flat) { ignoreRemove = true };
+        ForcesVector.Y.AddSingleModifier(gravity);
 
         currentTerminalVelocity = originalTerminalVelocity;
 
@@ -98,14 +124,14 @@ public class LivingEntity : MonoBehaviour
 
     protected virtual void Update()
     {
-        SetControlMethod?.Invoke();
-        SetActionUpdateMethod?.Invoke();
+        CurrControlMethod?.Invoke();
+        CurrActionUpdateMethod?.Invoke();
     }
 
 
     protected virtual void FixedUpdate()
     {
-        SetActionFixedUpMethod?.Invoke();
+        CurrActionFixedMethod?.Invoke();
     }
 
     public bool SetLivingEntityState(StateSetter setter, bool ignoreStrength)
@@ -119,23 +145,23 @@ public class LivingEntity : MonoBehaviour
 
             if (setter.nullsOverride)
             {
-                SetControlMethod = setter.ControlMethod;
-                SetActionUpdateMethod = setter.UpdateMethod;
-                SetActionFixedUpMethod = setter.FixedUpdateMethod;
+                CurrControlMethod = setter.ControlMethod;
+                CurrActionUpdateMethod = setter.UpdateMethod;
+                CurrActionFixedMethod = setter.FixedUpdateMethod;
             }
             else
             {
                 if (setter.ControlMethod != null)
                 {
-                    SetControlMethod = setter.ControlMethod;
+                    CurrControlMethod = setter.ControlMethod;
                 }
                 if (setter.UpdateMethod != null)
                 {
-                    SetActionUpdateMethod = setter.UpdateMethod;
+                    CurrActionUpdateMethod = setter.UpdateMethod;
                 }
                 if (setter.FixedUpdateMethod != null)
                 {
-                    SetActionFixedUpMethod = setter.FixedUpdateMethod;
+                    CurrActionFixedMethod = setter.FixedUpdateMethod;
                 }
             }
 
@@ -162,8 +188,7 @@ public class LivingEntity : MonoBehaviour
     }
     public virtual void BaseActionFixedUpdate()
     {
-        GravityUpdate();
-        EntityMove();
+        EntityVelocity = new Vector2(CalculateXMovement(), CalculateYMovement());
     }
 
     public virtual void BaseActionControl() { }
@@ -172,16 +197,57 @@ public class LivingEntity : MonoBehaviour
 
     public void EntityMove()
     {
+        /*
         totalXVelocity = ((baseInputSpeed.Value + outsideSourceSpeed.Value) * knockbackControl.inputReducer) + knockbackControl.knockbackX.Value;
-        entityRB2D.velocity = new Vector2(totalXVelocity, entityRB2D.velocity.y);
+        EntityRB2D.velocity = new Vector2(totalXVelocity, EntityRB2D.velocity.y);
 
         //Vertical Movement
-        float yVel = Mathf.Clamp(entityRB2D.velocity.y, currentTerminalVelocity, 100.0f);
-        entityRB2D.velocity = new Vector2(entityRB2D.velocity.x, yVel);
+        float yVel = Mathf.Clamp(EntityRB2D.velocity.y, currentTerminalVelocity, 100.0f);
+        EntityRB2D.velocity = new Vector2(EntityRB2D.velocity.x, yVel); 
+        */
     }
-    private void GravityUpdate()
+
+    float CalculateXMovement()
+    {
+        float fix = Time.fixedDeltaTime;
+        return InputVector.XValueTimeClamp(fix)
+            + ForcesVector.XValueTimeClamp(fix)
+            + OutsideVelVector.XValueTimeClamp(fix);
+    }
+
+    float CalculateYMovement()
+    {
+        if (hasGravity)
+        {
+            GroundCheck();
+            TerminalVelocityUpdate();
+
+            if (!IsGrounded && collidedWithGround)
+            {
+                collidedWithGround = false;
+            }
+
+            if (!IsGrounded && !collidedWithGround)
+            {
+                gravity.ModifierValue += Physics2D.gravity.y * Time.fixedDeltaTime;
+                gravity.ModifierValue = Mathf.Clamp(gravity.ModifierValue, currentTerminalVelocity, 1000);
+            }
+        }
+        else
+        {
+            gravity.ModifierValue = Mathf.MoveTowards(gravity.ModifierValue, 0, Mathf.Abs(Physics2D.gravity.y) * Time.fixedDeltaTime);
+        }
+
+        float fix = Time.fixedDeltaTime;
+        return InputVector.YValueTimeClamp(fix)
+            + ForcesVector.YValueTimeClamp(fix)
+            + OutsideVelVector.YValueTimeClamp(fix);
+    }
+
+    private void TerminalVelocityUpdate()
     {
         float trueVel = originalTerminalVelocity;
+        float fix = Time.fixedDeltaTime;
 
         for(int i = terminalVels.Count -1 ; i >= 0; i--)
         {
@@ -191,7 +257,7 @@ public class LivingEntity : MonoBehaviour
             }
             if (terminalVels[i].isTimed)
             {
-                terminalVels[i].duration -= Time.fixedDeltaTime;
+                terminalVels[i].duration -= fix;
                 if(terminalVels[i].duration <= 0)
                 {
                     terminalVels.Remove(terminalVels[i]);
@@ -201,6 +267,67 @@ public class LivingEntity : MonoBehaviour
 
         currentTerminalVelocity = trueVel;
     }
+
+    private void OnCollisionStay2D(Collision2D collision)
+    {
+        int collisionNum = collision.GetContacts(contacts);
+        collisionNum = Mathf.Clamp(collisionNum, 0, contacts.Length);
+
+        colStates.SetFalse();
+
+        for(int i = 0; i < collisionNum; i++)
+        {
+            //Debug.Log(contacts[i].collider.name + ": "  + contacts[i].normal + " " + contacts[i].point);
+            if (!colStates.hitBot && contacts[i].normal.Equals(Vector2.up))
+            {
+                colStates.hitBot = true;
+
+                if(EntityVelocity.y < 0)
+                {
+                    ForcesVector.Y.RemoveAllModifiers();
+                    collidedWithGround = true;
+                }
+                if(gravity.ModifierValue < 0)
+                {
+                    gravity.ModifierValue = 0;
+                    collidedWithGround = true;
+                }
+            }
+            else if (!colStates.hitTop && contacts[i].normal.Equals(Vector2.down) && EntityVelocity.y > 0)
+            {
+                colStates.hitTop = true;
+
+                ForcesVector.Y.RemoveAllModifiers();
+                gravity.ModifierValue = 0;
+            }
+
+            else if (!colStates.hitLeft && contacts[i].normal.Equals(Vector2.right) && EntityVelocity.x < 0)
+            {
+                colStates.hitLeft = true;
+
+                ForcesVector.X.RemoveAllModifiers();
+            }
+
+            else if (!colStates.hitRight && contacts[i].normal.Equals(Vector2.left) && EntityVelocity.x > 0)
+            {
+                colStates.hitRight = true;
+
+                ForcesVector.X.RemoveAllModifiers();
+            }
+        }
+    }
+    bool collidedWithGround;
+    ContactPoint2D[] contacts = new ContactPoint2D[16];
+    public struct Collision2DStates
+    {
+        public bool hitTop, hitBot, hitLeft, hitRight;
+
+        public void SetFalse()
+        {
+            hitTop = hitBot = hitLeft = hitRight = false;
+        }
+    }
+    Collision2DStates colStates = new Collision2DStates();
 
 
     protected float InputSmoothing(string axisName)
@@ -251,9 +378,16 @@ public class LivingEntity : MonoBehaviour
 
     public virtual void InputAndPhysicsCleanUp()
     {
-        baseInputSpeed.BaseValue = 0;
+        InputVector.X.BaseValue = 0;
+        InputVector.Y.BaseValue = 0;
+
+        ForcesVector.RemoveAllModifiers();
+
         smoothingValue = 0;
-        entityRB2D.velocity = Vector2.zero;
+
+        EntityVelocity = Vector2.zero;
+        gravity.ModifierValue = 0;
+
         knockbackControl.StopKnockback();
     }
 
@@ -280,11 +414,11 @@ public class LivingEntity : MonoBehaviour
         }
         else
         {
-            if (baseInputSpeed.Value < 0.0f && isLookingRight)
+            if (InputVector.X.Value < 0.0f && isLookingRight)
             {
                 EntityFlip();
             }
-            else if (baseInputSpeed.Value > 0.0f && !isLookingRight)
+            else if (InputVector.X.Value > 0.0f && !isLookingRight)
             {
                 EntityFlip();
             }
@@ -309,9 +443,9 @@ public class LivingEntity : MonoBehaviour
 
     protected void GroundCheck()
     {
-        Vector2 leftRayOrigin = new Vector2(entityBC2D.bounds.center.x - entityBC2D.bounds.extents.x, entityBC2D.bounds.center.y - entityBC2D.bounds.extents.y);
-        Vector2 rightRayOrigin = new Vector2(entityBC2D.bounds.center.x + entityBC2D.bounds.extents.x, entityBC2D.bounds.center.y - entityBC2D.bounds.extents.y);
-        Vector2 centerRayOrigin = new Vector2(entityBC2D.bounds.center.x, entityBC2D.bounds.center.y - entityBC2D.bounds.extents.y);
+        Vector2 leftRayOrigin = new Vector2(EntityBC2D.bounds.center.x - EntityBC2D.bounds.extents.x, EntityBC2D.bounds.center.y - EntityBC2D.bounds.extents.y);
+        Vector2 rightRayOrigin = new Vector2(EntityBC2D.bounds.center.x + EntityBC2D.bounds.extents.x, EntityBC2D.bounds.center.y - EntityBC2D.bounds.extents.y);
+        Vector2 centerRayOrigin = new Vector2(EntityBC2D.bounds.center.x, EntityBC2D.bounds.center.y - EntityBC2D.bounds.extents.y);
 
         //Left Raycast
         bool leftHit = Physics2D.Raycast(leftRayOrigin, Vector2.down, groundRayLength, groundMask);
@@ -383,6 +517,9 @@ public class LivingEntity : MonoBehaviour
         return false;
     }
 
+
+
+    /*
     protected IEnumerator WaitForSecondsHitStop(float duration, bool isFixed, bool isRealTime)
     {
         float time = 0;
@@ -418,19 +555,19 @@ public class LivingEntity : MonoBehaviour
         {
             if (value)
             {
-                oldType = entityRB2D.bodyType;
-                entityRB2D.bodyType = RigidbodyType2D.Kinematic;
+                oldType = EntityRB2D.bodyType;
+                EntityRB2D.bodyType = RigidbodyType2D.Kinematic;
 
-                entityRB2D.gravityScale = 0;
+                EntityRB2D.gravityScale = 0;
 
-                oldvel = entityRB2D.velocity;
-                entityRB2D.velocity = Vector2.zero;
+                oldvel = EntityRB2D.velocity;
+                EntityRB2D.velocity = Vector2.zero;
             }
             if(!value && isPaused)
             {
-                entityRB2D.bodyType = oldType;
-                entityRB2D.gravityScale = 1;
-                entityRB2D.velocity = oldvel;
+                EntityRB2D.bodyType = oldType;
+                EntityRB2D.gravityScale = 1;
+                EntityRB2D.velocity = oldvel;
             }
 
             isPaused = value;
@@ -449,6 +586,7 @@ public class LivingEntity : MonoBehaviour
     float hitStopTimer = 5;
     Vector2 oldvel = Vector2.zero;
     RigidbodyType2D oldType;
+    */
 
 
 

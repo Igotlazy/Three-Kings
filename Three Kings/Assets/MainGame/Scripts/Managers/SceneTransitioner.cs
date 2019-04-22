@@ -55,8 +55,8 @@ public class SceneTransitioner : MonoBehaviour
             {
                 Player.instance.SetLivingEntityState(transitionStateUp, false);
                 Player.instance.InputAndPhysicsCleanUp();
-                Player.instance.entityRB2D.bodyType = RigidbodyType2D.Kinematic;
-                Player.instance.entityRB2D.velocity = new Vector2(0f, 8f);
+                Player.instance.EntityRB2D.bodyType = RigidbodyType2D.Kinematic;
+                Player.instance.EntityRB2D.velocity = new Vector2(0f, 8f);
 
             }
             else
@@ -64,7 +64,7 @@ public class SceneTransitioner : MonoBehaviour
                 Player.instance.SetLivingEntityState(transitionState, false);
 
                 controller.ModifierValue = Player.instance.InputMultiplier * moveVector.x * 0.9f;
-                Player.instance.outsideSourceSpeed.AddSingleModifier(controller);
+                Player.instance.OutsideVelVector.X.AddSingleModifier(controller);
 
                 if (!Player.instance.isLookingRight && moveVector.Equals(Vector3.right))
                 {
@@ -115,7 +115,7 @@ public class SceneTransitioner : MonoBehaviour
     private void PositionExit()
     {
         RaycastHit2D hit = Physics2D.Raycast(exit.position, Vector2.down);
-        exit.position = new Vector3(exit.position.x, hit.point.y + Player.instance.entityBC2D.size.y / 2 + 0.1f, 0f);
+        exit.position = new Vector3(exit.position.x, hit.point.y + Player.instance.EntityBC2D.size.y / 2 + 0.1f, 0f);
     }
 
     public IEnumerator EnterPlayerToScene()
@@ -124,7 +124,7 @@ public class SceneTransitioner : MonoBehaviour
 
         Player.instance.transform.position = exit.transform.position;
         Player.instance.InputAndPhysicsCleanUp();
-        Player.instance.outsideSourceSpeed.RemoveAllModifiers();
+        Player.instance.OutsideVelVector.RemoveAllModifiers();
 
         yield return new WaitForSeconds(1);
 
@@ -144,7 +144,10 @@ public class SceneTransitioner : MonoBehaviour
             }
 
             controller.ModifierValue = Player.instance.InputMultiplier * -moveVector.x * 0.9f;
-            Player.instance.outsideSourceSpeed.AddSingleModifier(controller);
+            if (!Player.instance.OutsideVelVector.X.FloatModifiers.Contains(controller))
+            {
+                Player.instance.OutsideVelVector.X.AddSingleModifier(controller);
+            }
             Debug.Log("Did it " + controller.ModifierValue);
         }
         else
@@ -163,10 +166,11 @@ public class SceneTransitioner : MonoBehaviour
         }
 
 
-        Player.instance.outsideSourceSpeed.RemoveAllModifiers();
+        Player.instance.InputVector.RemoveAllModifiers();
+        Player.instance.OutsideVelVector.X.RemoveSingleModifier(controller, false);
         Player.instance.hurtBox.enabled = true;
 
-        Player.instance.entityRB2D.bodyType = RigidbodyType2D.Dynamic;
+        Player.instance.EntityRB2D.bodyType = RigidbodyType2D.Dynamic;
         Player.instance.OriginalStateSet();
 
         boxCollider.enabled = true;

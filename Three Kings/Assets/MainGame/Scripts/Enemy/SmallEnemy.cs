@@ -36,7 +36,7 @@ public class SmallEnemy : Enemy
 
     private void EnemyMove()
     {
-        baseInputSpeed.BaseValue = (movementSpeed);
+        InputVector.X.BaseValue = (movementSpeed);
 
         changeDirectionCounter -= Time.deltaTime;
         if (changeDirectionCounter < 0)

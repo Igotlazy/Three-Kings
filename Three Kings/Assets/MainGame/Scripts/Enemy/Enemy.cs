@@ -36,7 +36,7 @@ public class Enemy : LivingEntity {
 
     private void EnemyContactAttack()
     {      
-       Collider2D[] playersToDamage = Physics2D.OverlapBoxAll(entityBC2D.bounds.center, new Vector2(entityBC2D.bounds.size.x, entityBC2D.bounds.size.y), 0, playerLayerMask);
+       Collider2D[] playersToDamage = Physics2D.OverlapBoxAll(EntityBC2D.bounds.center, new Vector2(EntityBC2D.bounds.size.x, EntityBC2D.bounds.size.y), 0, playerLayerMask);
         foreach (Collider2D col in playersToDamage)
         {
             if(col == Player.instance.hurtBox)
