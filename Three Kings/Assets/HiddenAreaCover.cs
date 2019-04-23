@@ -5,22 +5,24 @@ using UnityEngine.Tilemaps;
 
 public class HiddenAreaCover : MonoBehaviour
 {
-    public Tilemap sprite;
+    [Header("Properties:")]
     public bool revealed;
     public float revealSpeed = 0.5f;
-    public AudioSource soundEffect;
+    public Color startColor;
+
+    [Header("References:")]
+    public Tilemap sprite;
+    private AudioSource soundEffect;
 
     float step;
     bool finishedReveal;
     
-
-    // Start is called before the first frame update
     void Start()
     {
         soundEffect = GetComponent<AudioSource>();
+        sprite.color = startColor;
     }
 
-    // Update is called once per frame
     void Update()
     {
         if (!finishedReveal && revealed)
