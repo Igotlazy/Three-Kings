@@ -8,10 +8,10 @@ EditorBuildSettings:
   - enabled: 0
     path: 
     guid: 00000000000000000000000000000000
-  - enabled: 0
+  - enabled: 1
     path: Assets/MainGame/Scenes/HK Test 1.unity
     guid: b0b0b9b9a44850442a6d6051b0fe647c
-  - enabled: 0
+  - enabled: 1
     path: Assets/MainGame/Scenes/HK Test 2.unity
     guid: 8a09097ad1d6e5b44a0a83ca500aa354
   - enabled: 1
