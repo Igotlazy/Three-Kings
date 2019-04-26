@@ -37,8 +37,6 @@ public class CameraManager : MonoBehaviour
             shakes.Add(givenShake);
         }
         givenShake.timer = givenShake.duration;
-
-        Debug.Log("SHAKE CAMERA");
     }
 
 

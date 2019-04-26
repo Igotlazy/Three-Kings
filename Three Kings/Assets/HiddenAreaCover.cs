@@ -6,17 +6,21 @@ using UnityEngine.Tilemaps;
 public class HiddenAreaCover : MonoBehaviour
 {
     [Header("Properties:")]
-    public bool revealed;
-    public float revealSpeed = 0.5f;
+    public float revealTime = 0.5f;
+    public bool revealOnce;
     public Color startColor;
+    public bool playRevealAudio = true;
 
     [Header("References:")]
     public Tilemap sprite;
     private AudioSource soundEffect;
 
-    float step;
-    bool finishedReveal;
-    
+    float alphaTarget = 1;
+    bool lerping;
+
+    bool revealed;
+    bool hidden;
+
     void Start()
     {
         soundEffect = GetComponent<AudioSource>();
@@ -25,35 +29,63 @@ public class HiddenAreaCover : MonoBehaviour
 
     void Update()
     {
-        if (!finishedReveal && revealed)
+        if (lerping)
         {
-            float lerpAlpha = Mathf.Lerp(1, 0, step / revealSpeed);
-            sprite.color = new Color(sprite.color.r, sprite.color.g, sprite.color.b, lerpAlpha);
-            step += Time.deltaTime;
-
-            if(step > revealSpeed)
+            if(sprite.color.a != alphaTarget)
             {
-                sprite.color = new Color(sprite.color.r, sprite.color.g, sprite.color.b, 0);
-                finishedReveal = true;
+                float lerpAlpha = Mathf.MoveTowards(sprite.color.a, alphaTarget, Time.deltaTime / revealTime);
+
+                sprite.color = new Color(sprite.color.r, sprite.color.g, sprite.color.b, lerpAlpha);
+            }
+            else
+            {
+                sprite.color = new Color(sprite.color.r, sprite.color.g, sprite.color.b, alphaTarget);
+                lerping = false;
+
+                if(sprite.color.a == 0)
+                {
+                    revealed = true;
+                    hidden = false;
+                }
+                if(sprite.color.a == 1)
+                {
+                    revealed = false;
+                    hidden = true;
+                }
             }
         }
-        /*
-        if (Input.GetKeyDown(KeyCode.I))
-        {
-            revealed = false;
-            finishedReveal = false;
-            step = 0;
-            sprite.color = new Color(sprite.color.r, sprite.color.g, sprite.color.b, 1);
-        }
-        */
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if(!revealed && collision.gameObject == Player.instance.gameObject)
+        if(collision.gameObject == Player.instance.gameObject)
         {
-            revealed = true;
+            RevealArea();
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        if (collision.gameObject == Player.instance.gameObject && !revealOnce)
+        {
+            HideArea();
+        }
+    }
+
+    public void RevealArea()
+    {
+        lerping = true;
+        alphaTarget = 0;
+
+        if (playRevealAudio)
+        {
             soundEffect.Play();
         }
+    }
+
+    public void HideArea()
+    {
+        lerping = true;
+        alphaTarget = 1;
     }
 }

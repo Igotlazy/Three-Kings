@@ -86,7 +86,7 @@ public class BasicSlash : Ability
 
         foreach (Collider2D col in targetsHit)
         {
-            if (col.gameObject.CompareTag("Enemy") || col.gameObject.CompareTag("Hazard"))
+            if (col.gameObject.CompareTag("Enemy") || col.gameObject.CompareTag("Hazard") || col.gameObject.CompareTag("Hitable"))
             {
                 healthControl = col.gameObject.GetComponent<HealthControl>();
                 if (healthControl != null)
@@ -140,28 +140,28 @@ public class BasicSlash : Ability
     {
         if (currSlashTrans == slashSideTrans) //Recoil
         {
-            GameController.instance.TimeScaleSlowDown(0, 0.03f, 0f);
+            GameController.instance.TimeScaleSlowDown(0, 0.02f, 0f);
 
             if (currSlashTrans.position.x > transform.position.x)
             {
                 if (aEntity.IsGrounded)
                 {
-                    aEntity.knockbackControl.StartKnockback(new Vector2(-7f, 0f), 0.07f, 0.05f);
+                    aEntity.knockbackControl.StartKnockback(new Vector2(-7f, 0f), 0.05f, 0.05f);
                 }
                 else
                 {
-                    aEntity.knockbackControl.StartKnockback(new Vector2(-7f, 0f), 0.10f, 0.1f);
+                    aEntity.knockbackControl.StartKnockback(new Vector2(-7f, 0f), 0.08f, 0.1f);
                 }
             }
             else
             {
                 if (aEntity.IsGrounded)
                 {
-                    aEntity.knockbackControl.StartKnockback(new Vector2(7f, 0f), 0.07f, 0.05f);
+                    aEntity.knockbackControl.StartKnockback(new Vector2(7f, 0f), 0.05f, 0.05f);
                 }
                 else
                 {
-                    aEntity.knockbackControl.StartKnockback(new Vector2(7f, 0f), 0.10f, 0.1f);
+                    aEntity.knockbackControl.StartKnockback(new Vector2(7f, 0f), 0.08f, 0.1f);
                 }
             }
         }

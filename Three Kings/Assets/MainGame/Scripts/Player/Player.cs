@@ -390,7 +390,7 @@ public class Player : LivingEntity
         {
             OriginalStateSet();
         }
-        if (givenHealh != null)
+        if (givenHealh != null && !givenHealh.gameObject.CompareTag("Hitable") && !givenHealh.gameObject.CompareTag("Hazard"))
         {
             swatheEnergy.CurrentEnergy += 1;
         }

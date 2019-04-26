@@ -1,11 +1,12 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using System;
 
 public class HealthControl : MonoBehaviour
 {
-    [Header("Health Control")]
+    [Header("Properties:")]
     [SerializeField] private float maxHealth;
     public virtual float MaxHealth
     {
@@ -30,8 +31,9 @@ public class HealthControl : MonoBehaviour
             currentHealth = Mathf.Clamp(value, 0, maxHealth);
         }
     }
+    public bool destroyOnDeath;
 
-    [Header("Invincibility")]
+    [Header("Invincibility:")]
     public bool isInvincible;
     public virtual bool IsInvincible
     {
@@ -48,14 +50,17 @@ public class HealthControl : MonoBehaviour
     float invincibilityCounter;
     public bool undamagable;
 
+    [Header("References:")]
     public GameObject deathParticles;
     public GameObject aliveHitParticles;
 
-    public Action<Attack> onHitDeath;
-    public Action<Attack> onHitAlive;
-    public Action<Attack> onHit;
-    public Attack lastAttack;
-    public List<Collider2D> ignoreColliders;
+    [Header("Hooks:")]
+    public DamageEvent onHitDeath;
+    public DamageEvent onHitAlive;
+    public DamageEvent onHit;
+
+    [HideInInspector] public Attack lastAttack;
+    [HideInInspector] public List<Collider2D> ignoreColliders;
 
     protected virtual void Start()
     {
@@ -63,14 +68,14 @@ public class HealthControl : MonoBehaviour
         CurrentHealth = MaxHealth;
     }
 
-    public virtual void DealDamage(Attack receivedAttack)
+    public virtual bool DealDamage(Attack receivedAttack)
     {
         if ((!IsInvincible || receivedAttack.ignoreInvincibility) && !undamagable && CurrentHealth > 0)
-        {
+        {            
             Collider2D collider = receivedAttack.damageSource.GetComponent<Collider2D>();
             if(collider != null && ignoreColliders.Contains(collider))
             {
-                return;
+                return false;
             }
 
             lastAttack = receivedAttack;
@@ -96,7 +101,11 @@ public class HealthControl : MonoBehaviour
                 onHitAlive?.Invoke(receivedAttack);
                 AliveHit();
             }
+
+            return true;
         }
+
+        return false;
     }
 
     protected virtual void Update()
@@ -147,5 +156,12 @@ public class HealthControl : MonoBehaviour
         {
             Instantiate(deathParticles, transform.position, Quaternion.identity);
         }
+        if (destroyOnDeath)
+        {
+            Destroy(gameObject);
+        }
     }
+
+    [System.Serializable]
+    public class DamageEvent : UnityEvent<Attack>{ }
 }

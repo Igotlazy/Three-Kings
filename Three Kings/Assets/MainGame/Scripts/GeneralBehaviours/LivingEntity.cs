@@ -58,7 +58,7 @@ public class LivingEntity : MonoBehaviour
             velocity = value;
         }
     }
-
+    public float gravityMultiplier = 1f;
     public float originalTerminalVelocity = -20f;
     [SerializeField] private float currentTerminalVelocity;
     public List<TerminalVel> terminalVels = new List<TerminalVel>();
@@ -66,7 +66,18 @@ public class LivingEntity : MonoBehaviour
     public float groundRayLength = 0.05f;
     protected LayerMask groundMask;
 
-    ContactFilter2D filter = new ContactFilter2D();
+    bool collidedWithGround;
+    ContactPoint2D[] contacts = new ContactPoint2D[16];
+    public struct Collision2DStates
+    {
+        public bool hitTop, hitBot, hitLeft, hitRight;
+
+        public void SetFalse()
+        {
+            hitTop = hitBot = hitLeft = hitRight = false;
+        }
+    }
+    Collision2DStates colStates = new Collision2DStates();
 
 
     [Header("State Bools:")]
@@ -96,13 +107,11 @@ public class LivingEntity : MonoBehaviour
         EntityRB2D = this.GetComponent<Rigidbody2D>();
         EntityBC2D = this.GetComponent<BoxCollider2D>();
 
-        filter.SetLayerMask(gameObject.layer);
-
         groundMask = (1 << LayerMask.NameToLayer("Ground - Soft")) | (1 << LayerMask.NameToLayer("Ground - Hard"));
 
         healthControl = GetComponent<HealthControl>();
-        healthControl.onHitAlive += HitReactionOnAlive;
-        healthControl.onHitDeath += PhysicsCleanUpOnDeath;
+        healthControl.onHitAlive.AddListener(HitReactionOnAlive);
+        healthControl.onHitDeath.AddListener(PhysicsCleanUpOnDeath);
 
         knockbackControl = GetComponent<KnockbackControl>();
         //waitForNotPaused = new WaitUntil(() => !isPaused);
@@ -229,7 +238,7 @@ public class LivingEntity : MonoBehaviour
 
             if (!IsGrounded && !collidedWithGround)
             {
-                gravity.ModifierValue += Physics2D.gravity.y * Time.fixedDeltaTime;
+                gravity.ModifierValue += Physics2D.gravity.y * gravityMultiplier * Time.fixedDeltaTime;
                 gravity.ModifierValue = Mathf.Clamp(gravity.ModifierValue, currentTerminalVelocity, 1000);
             }
         }
@@ -272,13 +281,12 @@ public class LivingEntity : MonoBehaviour
     {
         int collisionNum = collision.GetContacts(contacts);
         collisionNum = Mathf.Clamp(collisionNum, 0, contacts.Length);
-
         colStates.SetFalse();
 
         for(int i = 0; i < collisionNum; i++)
         {
             //Debug.Log(contacts[i].collider.name + ": "  + contacts[i].normal + " " + contacts[i].point);
-            if (!colStates.hitBot && contacts[i].normal.Equals(Vector2.up))
+            if (!colStates.hitBot && contacts[i].normal == Vector2.up)
             {
                 colStates.hitBot = true;
 
@@ -293,22 +301,21 @@ public class LivingEntity : MonoBehaviour
                     collidedWithGround = true;
                 }
             }
-            else if (!colStates.hitTop && contacts[i].normal.Equals(Vector2.down) && EntityVelocity.y > 0)
+            else if (!colStates.hitTop && contacts[i].normal == Vector2.down && EntityVelocity.y > 0)
             {
+                Debug.Log("Hit Top");
                 colStates.hitTop = true;
 
                 ForcesVector.Y.RemoveAllModifiers();
                 gravity.ModifierValue = 0;
             }
-
-            else if (!colStates.hitLeft && contacts[i].normal.Equals(Vector2.right) && EntityVelocity.x < 0)
+            else if (!colStates.hitLeft && contacts[i].normal == Vector2.right && EntityVelocity.x < 0)
             {
                 colStates.hitLeft = true;
 
                 ForcesVector.X.RemoveAllModifiers();
             }
-
-            else if (!colStates.hitRight && contacts[i].normal.Equals(Vector2.left) && EntityVelocity.x > 0)
+            else if (!colStates.hitRight && contacts[i].normal == Vector2.left && EntityVelocity.x > 0)
             {
                 colStates.hitRight = true;
 
@@ -316,18 +323,6 @@ public class LivingEntity : MonoBehaviour
             }
         }
     }
-    bool collidedWithGround;
-    ContactPoint2D[] contacts = new ContactPoint2D[16];
-    public struct Collision2DStates
-    {
-        public bool hitTop, hitBot, hitLeft, hitRight;
-
-        public void SetFalse()
-        {
-            hitTop = hitBot = hitLeft = hitRight = false;
-        }
-    }
-    Collision2DStates colStates = new Collision2DStates();
 
 
     protected float InputSmoothing(string axisName)
