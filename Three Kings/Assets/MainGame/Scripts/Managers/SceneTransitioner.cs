@@ -18,8 +18,8 @@ public class SceneTransitioner : MonoBehaviour
 
     static FloatModifier controller;
 
-    public StateSetter transitionState;
-    public StateSetter transitionStateUp;
+    public StateSetter transitionStartState;
+    public StateSetter transitionStartStateUp;
 
 
     private void Awake()
@@ -29,11 +29,12 @@ public class SceneTransitioner : MonoBehaviour
             controller = new FloatModifier(0, FloatModifier.FloatModType.Flat, this);
         }
 
+        transitionStartState = new StateSetter(this, TransitionStartSetUp, null, Player.instance.BaseActionUpdate, Player.instance.BaseActionFixedUpdate, TransitionCancel, StateSetter.SetStrength.Strong);
+        transitionStartStateUp = new StateSetter(this, TransitionStartSetUpUpward, null, null, null, TransitionCancel, StateSetter.SetStrength.Strong);
+
         boxCollider = GetComponent<BoxCollider2D>();
 
-        transitionState = new StateSetter(this, null, Player.instance.BaseActionUpdate, Player.instance.BaseActionFixedUpdate, StateSetter.SetStrength.Strong);
-        transitionStateUp = new StateSetter(this, null, null, null, StateSetter.SetStrength.Strong);
-
+        
         PositionExit();
         OrientMoveVector();
     }
@@ -48,37 +49,47 @@ public class SceneTransitioner : MonoBehaviour
         if (collision.gameObject == Player.instance.gameObject)
         {
             GameController.instance.sceneTransitionManager.TransitionerSceneChange(areaCode);
-            boxCollider.enabled = false;
 
-            Player.instance.hurtBox.enabled = false;
             if (moveVector.Equals(Vector3.up))
             {
-                Player.instance.SetLivingEntityState(transitionStateUp, false);
-                Player.instance.InputAndPhysicsCleanUp();
-                Player.instance.EntityRB2D.bodyType = RigidbodyType2D.Kinematic;
-                Player.instance.EntityRB2D.velocity = new Vector2(0f, 8f);
+                Player.instance.SetLivingEntityState(transitionStartStateUp, false);
 
             }
             else
             {
-                Player.instance.SetLivingEntityState(transitionState, false);
-
-                controller.ModifierValue = Player.instance.InputMultiplier * moveVector.x * 0.9f;
-                Player.instance.OutsideVelVector.X.AddSingleModifier(controller);
-
-                if (!Player.instance.isLookingRight && moveVector.Equals(Vector3.right))
-                {
-                    Player.instance.EntityFlip();
-                }
-                if (Player.instance.isLookingRight && moveVector.Equals(Vector3.left))
-                {
-                    Player.instance.EntityFlip();
-                }
-
-                Player.instance.InputAndPhysicsCleanUp();
+                Player.instance.SetLivingEntityState(transitionStartState, false);
             }
-
         }
+    }
+
+    private void TransitionStartSetUp()
+    {
+        Player.instance.InputAndPhysicsCleanUp();
+        boxCollider.enabled = false;
+
+        Player.instance.hurtBox.enabled = false;
+
+        controller.ModifierValue = Player.instance.InputMultiplier * moveVector.x * 0.9f;
+        Player.instance.InputVector.X.AddSingleModifier(controller);
+
+        Player.instance.InputAndPhysicsCleanUp();
+    }
+
+    private void TransitionStartSetUpUpward()
+    {
+        boxCollider.enabled = false;
+
+        Player.instance.hurtBox.enabled = false;
+
+        Player.instance.InputAndPhysicsCleanUp();
+        Player.instance.EntityRB2D.bodyType = RigidbodyType2D.Kinematic;
+        Player.instance.EntityRB2D.velocity = new Vector2(0f, 8f); //<-- errrrrrrrrrrr
+    }
+
+    private void TransitionCancel()
+    {
+        //Player.instance.hurtBox.enabled = true;
+        Player.instance.OutsideVelVector.X.RemoveSingleModifier(controller, false);
     }
 
     public void LoadToManager()
@@ -118,43 +129,29 @@ public class SceneTransitioner : MonoBehaviour
         exit.position = new Vector3(exit.position.x, hit.point.y + Player.instance.EntityBC2D.size.y / 2 + 0.1f, 0f);
     }
 
+
+
     public IEnumerator EnterPlayerToScene()
     {
         boxCollider.enabled = false;
 
         Player.instance.transform.position = exit.transform.position;
         Player.instance.InputAndPhysicsCleanUp();
-        Player.instance.OutsideVelVector.RemoveAllModifiers();
+        Player.instance.transform.position = exit.transform.position;
+        controller.ModifierValue = 0;
 
         yield return new WaitForSeconds(1);
 
         if (!isUpOrDown)
         {
-            Player.instance.SetLivingEntityState(transitionState, false);
-            Debug.Log("Heelo");
-
-            if (Player.instance.isLookingRight && moveVector.Equals(Vector3.right))
-            {
-                Player.instance.EntityFlip();
-            }
-            if (!Player.instance.isLookingRight && moveVector.Equals(Vector3.left))
-            {
-                Player.instance.EntityFlip();
-
-            }
-
             controller.ModifierValue = Player.instance.InputMultiplier * -moveVector.x * 0.9f;
-            if (!Player.instance.OutsideVelVector.X.FloatModifiers.Contains(controller))
-            {
-                Player.instance.OutsideVelVector.X.AddSingleModifier(controller);
-            }
-            Debug.Log("Did it " + controller.ModifierValue);
         }
         else
         {
             if (moveVector.Equals(Vector3.up))
             {
-                Player.instance.SetLivingEntityState(transitionState, false);
+                Player.instance.SetLivingEntityState(transitionStartStateUp, false);
+                Player.instance.InputVector.X.RemoveSingleModifier(controller, false);
             }
         }
 
@@ -165,9 +162,7 @@ public class SceneTransitioner : MonoBehaviour
             yield return null;
         }
 
-
-        Player.instance.InputVector.RemoveAllModifiers();
-        Player.instance.OutsideVelVector.X.RemoveSingleModifier(controller, false);
+        Player.instance.InputVector.X.RemoveSingleModifier(controller, false);
         Player.instance.hurtBox.enabled = true;
 
         Player.instance.EntityRB2D.bodyType = RigidbodyType2D.Dynamic;
@@ -179,6 +174,10 @@ public class SceneTransitioner : MonoBehaviour
     private void OnDestroy()
     {
         GameController.instance.sceneTransitionManager.OnNewSceneEvent -= LoadToManager;
+        if (!boxCollider.enabled)
+        {
+            boxCollider.enabled = true;
+        }
     }
 
     [System.Serializable]

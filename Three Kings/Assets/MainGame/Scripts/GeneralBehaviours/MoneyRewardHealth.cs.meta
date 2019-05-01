@@ -1,0 +1,13 @@
+fileFormatVersion: 2
+guid: 4dd5a0ef58ba11f42a1c188e38286c19
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - geoPrefab: {fileID: 8971390165565352615, guid: 7401c4b7b56ce4042a8be3b2a11265ed,
+      type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

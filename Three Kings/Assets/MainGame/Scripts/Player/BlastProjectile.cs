@@ -29,7 +29,7 @@ public class BlastProjectile : MonoBehaviour {
 
             if (enemyScript != null)
             {
-                enemyScript.healthControl.DealDamage(attackObject);
+                enemyScript.healthControl.TakeDamage(attackObject);
                 Instantiate(onDeathParticles, transform.position, Quaternion.identity);
             }
 

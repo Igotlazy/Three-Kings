@@ -106,11 +106,6 @@ public class Player : LivingEntity
             jumpAbility.CastAbility();
         }
 
-        if (!Input.GetButton("Jump"))
-        {
-            jumpAbility.Cancel();
-        }
-
         //Gliding
         if (Input.GetButton("Glide"))
         {
@@ -219,13 +214,11 @@ public class Player : LivingEntity
         jumpAbility.castRestriction += JumpRestric;
         jumpAbility.onRegularJump += OnRegularJump;
 
-        dashAbility.onAbilityCast += OnDash;
         dashAbility.onDashVectorCalculated += OnDashVectorCalculated;
         dashAbility.DashControl = DashControl;
 
         wallJumpAbility.onWallCling += OnWallCling;
         wallJumpAbility.onAbilityCast += OnWallJump;
-        wallJumpAbility.castRestriction += WallJumpRestric;
 
         vaultAbility.onVaultSuccess += ResetMobility;
 
@@ -288,11 +281,7 @@ public class Player : LivingEntity
         wallJumpAbility.lockOutTimer = 0.15f; //So you can't Wall Jump immediately after leaving the ground.
     }
 
-
-    private void OnDash()
-    {
-        jumpAbility.isJumping = false; //So Jump Cancel can't set Y velocity to Zero for a frame.
-    }
+    
     private Vector2 OnDashVectorCalculated(Vector2 dashVec) 
     {
         if (wallJumpAbility.CanActivate) //So if you're on a wall you always dash to the side.
@@ -366,17 +355,7 @@ public class Player : LivingEntity
     }
     private void OnWallJump() 
     {
-        jumpAbility.isJumping = false; //So Jump Cancel cannot stop Y velocity from Wall Jump.
-
-        if (dashAbility.isDashing)
-        {
-            OriginalStateSet();
-        }
         dashAbility.ApplyLock(); //So you can't immediately Dash out of wall Jump.
-    }
-    private bool WallJumpRestric()
-    {
-        return IsGrounded ? false : true; //So it won't try to wall jump if you're grounded.
     }
 
 
@@ -396,14 +375,7 @@ public class Player : LivingEntity
         }
     }
     private void OnSlashPogo()
-    {
-        jumpAbility.isJumping = false; //So Jump Cancel cannot stop Y velocity
-
-        if (dashAbility.isDashing)
-        {
-            OriginalStateSet();
-        }
-
+    {     
         ResetMobility(); //So Pogo'ing resets mobility.
     }
 

@@ -14,7 +14,7 @@ public class TalkingNPC : Interactable
     protected override void Start()
     {
         base.Start();
-        npcTalkSetter = new StateSetter(this, null, Player.instance.BaseActionUpdate, Player.instance.BaseActionFixedUpdate, StateSetter.SetStrength.Medium);
+        npcTalkSetter = new StateSetter(this,null, null, Player.instance.BaseActionUpdate, Player.instance.BaseActionFixedUpdate, StateSetter.SetStrength.Medium);
         swathe = Player.instance;
         interactIndicator.SetActive(false);
         if (conversation.isAutomatic)
@@ -47,8 +47,7 @@ public class TalkingNPC : Interactable
         if (!moveDuringConvo)
         {
             swathe.SetLivingEntityState(npcTalkSetter, false);
-            swathe.InputVector.X.BaseValue = 0;
-            swathe.smoothingValue = 0;
+            swathe.InputAndPhysicsCleanUp();
         }
 
         UIManager.instance.textBoxUI.EndConvo += EndConvo;

@@ -219,7 +219,7 @@ public class Vault : Ability
         isVaulting = false; //Vault needs to end by this point or else it will be cancelled when Dash activates.
 
 
-        dashRef.DashInitiate(direction, vaultSpeed, vaultTime, false);
+        //dashRef.DashInitiate(direction, vaultSpeed, vaultTime, false);
 
         yield return new WaitForSeconds(vaultTime + 0.25f);
 

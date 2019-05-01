@@ -24,6 +24,9 @@ public class Jump : Ability
 
     private float coyoteTracker;
 
+    public StateSetter jumpState;
+    public StateSetter extraJumpState;
+
 
     public override bool AbilityActivated
     {
@@ -48,6 +51,12 @@ public class Jump : Ability
     protected override void Awake()
     {
         base.Awake();
+        Action combinedUpdate = aEntity.BaseActionUpdate;
+        combinedUpdate += JumpStateUpdate;
+        jumpState = new StateSetter(this, JumpSetUp, aEntity.BaseActionControl,combinedUpdate, aEntity.BaseActionFixedUpdate, PJumpCancel, StateSetter.SetStrength.Weak);
+        extraJumpState = new StateSetter(this, ExtraJumpSetUp, aEntity.BaseActionControl, combinedUpdate, aEntity.BaseActionFixedUpdate, PJumpCancel, StateSetter.SetStrength.Weak);
+
+
         currentExtraJumps = maxExtraJumps;
     }
 
@@ -73,6 +82,19 @@ public class Jump : Ability
         PJump();
     }
 
+    private void JumpStateUpdate()
+    {
+        if(!Input.GetButton("Jump") && aEntity.gravity.ModifierValue > 0)
+        {
+            aEntity.gravity.ModifierValue = 0;
+            aEntity.OriginalStateSet();
+        }
+        else if (isJumping && aEntity.gravity.ModifierValue <= 0)
+        {
+            aEntity.OriginalStateSet();
+        }
+    }
+
     public override void Cancel()
     {
         base.Cancel();
@@ -82,41 +104,47 @@ public class Jump : Ability
         }
     }
 
+    private void JumpSetUp()
+    {
+        onRegularJump?.Invoke();
+
+        aEntity.gravity.ModifierValue = jumpVelocity;
+
+        isJumping = true;
+
+        coyote = false;
+        coyoteTracker = 0;
+    }
+
+    private void ExtraJumpSetUp()
+    {
+        onExtraJump?.Invoke();
+
+        aEntity.gravity.ModifierValue = jumpVelocity * extraJumpMultiplier;
+        Instantiate(extraJumpParticles, new Vector3(transform.position.x, transform.position.y - aEntity.EntityBC2D.bounds.size.y / 2, 0f), Quaternion.identity);
+        isJumping = true;
+
+        currentExtraJumps -= 1;
+    }
+
     private void PJump()
     {
         if ((aEntity.IsGrounded || coyote) && !isJumping)
         {
-            onRegularJump?.Invoke();
-
-            aEntity.gravity.ModifierValue = jumpVelocity;
-
-            isJumping = true;
-
-            coyote = false;
-            coyoteTracker = 0;
+            aEntity.SetLivingEntityState(jumpState, false);
         }
         // Extra Jumps
         else if (currentExtraJumps > 0)
         {
-            onExtraJump?.Invoke();
-
-            aEntity.gravity.ModifierValue = jumpVelocity * extraJumpMultiplier;
-            Instantiate(extraJumpParticles, new Vector3(transform.position.x, transform.position.y - aEntity.EntityBC2D.bounds.size.y / 2, 0f), Quaternion.identity);
-            isJumping = true;
-
-            currentExtraJumps -= 1;
+            aEntity.SetLivingEntityState(extraJumpState, false);
         }
     }
 
     private void PJumpCancel()
     {
-        if (aEntity.gravity.ModifierValue > 0)
-        {
-            aEntity.gravity.ModifierValue = 0;
-        }
-
         coyote = false;
         coyoteTracker = 0;
+        isJumping = false;
     }
 
     private void GroundSet()
@@ -124,11 +152,6 @@ public class Jump : Ability
         if(aEntity.IsGrounded)
         {
             currentExtraJumps = maxExtraJumps;
-
-            if (isJumping && aEntity.gravity.ModifierValue <= 0)
-            {
-                isJumping = false;
-            }
         }
     }
 

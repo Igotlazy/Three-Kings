@@ -42,7 +42,7 @@ public class Enemy : LivingEntity {
             if(col == Player.instance.hurtBox)
             {
                 Attack contactAttack = new Attack(1f, gameObject, Attack.standardPlayerKnockBack);
-                Player.instance.healthControl.DealDamage(contactAttack);
+                Player.instance.healthControl.TakeDamage(contactAttack);
             }
             else
             {
@@ -50,7 +50,7 @@ public class Enemy : LivingEntity {
                 if(livingScript != null && livingScript != Player.instance)
                 {
                     Attack contactAttack = new Attack(1f, gameObject, Attack.standardPlayerKnockBack);
-                    livingScript.healthControl.DealDamage(contactAttack);
+                    livingScript.healthControl.TakeDamage(contactAttack);
                 }
             }
         }

@@ -1201,6 +1201,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: -74
       objectReference: {fileID: 0}
+    - target: {fileID: 1520223784, guid: f0ff52c0c1958c5448b7b28a701b643c, type: 3}
+      propertyPath: m_Name
+      value: Money Indicator
+      objectReference: {fileID: 0}
     - target: {fileID: 1264609723, guid: f0ff52c0c1958c5448b7b28a701b643c, type: 3}
       propertyPath: m_AnchorMin.x
       value: 0
@@ -1241,6 +1245,11 @@ PrefabInstance:
       propertyPath: moneyValue
       value: 
       objectReference: {fileID: 1040689511769725064}
+    - target: {fileID: 7731355335677140959, guid: f0ff52c0c1958c5448b7b28a701b643c,
+        type: 3}
+      propertyPath: m_Name
+      value: Health and Energy Indicator
+      objectReference: {fileID: 0}
     - target: {fileID: 7731355335828418527, guid: f0ff52c0c1958c5448b7b28a701b643c,
         type: 3}
       propertyPath: m_UiScaleMode

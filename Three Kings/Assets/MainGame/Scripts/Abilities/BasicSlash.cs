@@ -103,7 +103,7 @@ public class BasicSlash : Ability
                     }
 
                     Debug.Log("Hit");
-                    healthControl.DealDamage(slashAttack);
+                    healthControl.TakeDamage(slashAttack);
                 }
 
                 hitAtLeastOne = true;
@@ -180,6 +180,7 @@ public class BasicSlash : Ability
         {
             onPogo?.Invoke();
             Debug.Log("Down Slash");
+            aEntity.OriginalStateSet();
             aEntity.gravity.ModifierValue = pogoVelocity;
         }
     }

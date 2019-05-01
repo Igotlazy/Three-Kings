@@ -13,7 +13,7 @@ public class Hazard : MonoBehaviour
             {
                 ignoreInvincibility = true
             };
-            Player.instance.healthControl.DealDamage(swatheHit);
+            Player.instance.healthControl.TakeDamage(swatheHit);
         }
         else if(collision.gameObject.CompareTag("Enemy"))
         {
@@ -21,7 +21,7 @@ public class Hazard : MonoBehaviour
             if(enemyScript != null && !enemyScript.isImmuneToHazards)
             {
                 Attack enemyHit = new Attack(true, gameObject);
-                enemyScript.healthControl.DealDamage(enemyHit);
+                enemyScript.healthControl.TakeDamage(enemyHit);
             }
         }
     }
