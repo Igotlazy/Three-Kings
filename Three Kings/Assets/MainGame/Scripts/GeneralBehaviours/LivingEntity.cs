@@ -152,7 +152,6 @@ public class LivingEntity : MonoBehaviour
                 currentController.CancelMethod?.Invoke();
             }
 
-            Debug.Log(gameObject.name + " State Change");
             setter.SetUpMethod?.Invoke();
 
             CurrControlMethod = setter.ControlMethod;
@@ -284,7 +283,6 @@ public class LivingEntity : MonoBehaviour
             }
             else if (!colStates.hitTop && contacts[i].normal == Vector2.down && EntityVelocity.y > 0)
             {
-                Debug.Log("Hit Top");
                 colStates.hitTop = true;
 
                 ForcesVector.Y.RemoveAllModifiers();
