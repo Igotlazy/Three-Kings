@@ -65,6 +65,25 @@ public class FocusHeal : Ability
         }
     }
 
+    private void FocusHealControl()
+    {
+        base.BaseActionControl();
+
+        InputVector.X.BaseValue = InputSmoothing("Horizontal") * InputMultiplier;
+
+        if (!Input.GetKey(KeyCode.B))
+        {
+            focusHealAbility.Cancel();
+            OriginalStateSet();
+        }
+
+        if (Input.GetButtonDown("Dash"))
+        {
+            dashAbility.CastAbility();
+        }
+
+    }
+
     private void BeginHeal()
     {
         isHealing = true;

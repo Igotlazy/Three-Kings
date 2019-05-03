@@ -105,10 +105,6 @@ public class Player : LivingEntity
         {
             jumpAbility.CastAbility();
         }
-        if (!Input.GetButton("Jump"))
-        {
-            jumpAbility.Cancel();
-        }
 
         //Gliding
         if (Input.GetButton("Glide"))
