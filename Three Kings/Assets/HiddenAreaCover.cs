@@ -3,32 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
-public class HiddenArea : MonoBehaviour
+public class HiddenAreaCover : MonoBehaviour
 {
     [Header("Properties:")]
     public float revealTime = 0.5f;
     public bool revealOnce;
     public Color startColor;
     public bool playRevealAudio = true;
-
-
-    [Header("Feedback:")]
-    [SerializeField] private bool disable;
-    public bool Disable
-    {
-        get
-        {
-            return disable;
-        }
-        set
-        {
-            if (value && !disable)
-            {
-                RevealArea();
-            }
-            disable = value;
-        }
-    }
 
     [Header("References:")]
     public Tilemap sprite;
@@ -38,12 +19,10 @@ public class HiddenArea : MonoBehaviour
     bool lerping;
 
     bool revealed;
-
+    bool hidden;
 
     void Start()
     {
-        SetUpHooks();
-
         soundEffect = GetComponent<AudioSource>();
         sprite.color = startColor;
     }
@@ -62,6 +41,17 @@ public class HiddenArea : MonoBehaviour
             {
                 sprite.color = new Color(sprite.color.r, sprite.color.g, sprite.color.b, alphaTarget);
                 lerping = false;
+
+                if(sprite.color.a == 0)
+                {
+                    revealed = true;
+                    hidden = false;
+                }
+                if(sprite.color.a == 1)
+                {
+                    revealed = false;
+                    hidden = true;
+                }
             }
         }
     }
@@ -84,34 +74,18 @@ public class HiddenArea : MonoBehaviour
 
     public void RevealArea()
     {
-        if (!disable)
+        lerping = true;
+        alphaTarget = 0;
+
+        if (playRevealAudio)
         {
-            lerping = true;
-            alphaTarget = 0;
-
-            if (playRevealAudio)
-            {
-                soundEffect.Play();
-            }
-
-            if (revealOnce)
-            {
-                disable = true;
-            }
+            soundEffect.Play();
         }
     }
 
     public void HideArea()
     {
-        if (!disable)
-        {
-            lerping = true;
-            alphaTarget = 1;
-        }
-    }
-
-    protected virtual void SetUpHooks()
-    {
-
+        lerping = true;
+        alphaTarget = 1;
     }
 }

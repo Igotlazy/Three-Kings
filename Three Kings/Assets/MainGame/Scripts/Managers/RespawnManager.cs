@@ -42,7 +42,7 @@ public class RespawnManager : MonoBehaviour
     // Start is called before the first frame update
     void Awake()
     {
-        respawnState = new StateSetter(this, null, null, null, null, StateSetter.SetStrength.Strong);
+        respawnState = new StateSetter(this, null, null, null, StateSetter.SetStrength.Strong);
         RespawnData newMajor = new RespawnData()
         {
             sceneName = SceneManager.GetActiveScene().name,
@@ -59,18 +59,12 @@ public class RespawnManager : MonoBehaviour
 
     public void InitiateMiniRespawn()
     {
-        if (Player.instance.SetLivingEntityState(respawnState, false))
-        {
-            StartCoroutine(Respawn(miniRespawnData));
-        }
+        StartCoroutine(Respawn(miniRespawnData));
     }
 
     public void InitiateMajorRespawn()
     {
-        if (Player.instance.SetLivingEntityState(respawnState, false))
-        {
-            StartCoroutine(Respawn(majorRespawnData));
-        }
+        StartCoroutine(Respawn(majorRespawnData));
     }
 
     IEnumerator Respawn(RespawnData areaCode)
@@ -78,6 +72,7 @@ public class RespawnManager : MonoBehaviour
         playerRespawn?.Invoke(); //So things know that the player is respawning.
 
         Player.instance.DisableHitboxAndVisuals();
+        Player.instance.SetLivingEntityState(respawnState, false);
         Player.instance.InputAndPhysicsCleanUp();
         Player.instance.EntityRB2D.bodyType = RigidbodyType2D.Kinematic;
 

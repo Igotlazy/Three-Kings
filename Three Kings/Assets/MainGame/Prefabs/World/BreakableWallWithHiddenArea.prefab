@@ -32,25 +32,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2396087972137076403
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6654017486619498111}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b149c1d0146fc5943a8bd812ec4dbd1e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  revealTime: 0.35
-  revealOnce: 0
-  startColor: {r: 0, g: 0, b: 0, a: 1}
-  playRevealAudio: 1
-  disable: 0
-  sprite: {fileID: 6654017486070853668}
-  healthControl: {fileID: 795334593772050284}
 --- !u!1001 &2296441262577270847
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -61,7 +42,7 @@ PrefabInstance:
     - target: {fileID: 4866500651824273149, guid: 83b06b6a837cdb0459638e98cbe2191b,
         type: 3}
       propertyPath: m_Name
-      value: Hidden Area
+      value: Hidden Area Cover
       objectReference: {fileID: 0}
     - target: {fileID: 4866500651824273090, guid: 83b06b6a837cdb0459638e98cbe2191b,
         type: 3}
@@ -138,8 +119,7 @@ PrefabInstance:
       propertyPath: m_LocalPosition.y
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents:
-    - {fileID: 4866500651574007367, guid: 83b06b6a837cdb0459638e98cbe2191b, type: 3}
+    m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 83b06b6a837cdb0459638e98cbe2191b, type: 3}
 --- !u!4 &6654017486906103549 stripped
 Transform:
@@ -147,18 +127,18 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 2296441262577270847}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &6654017486619498111 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 4866500651574007360, guid: 83b06b6a837cdb0459638e98cbe2191b,
+--- !u!114 &6654017486619498104 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4866500651574007367, guid: 83b06b6a837cdb0459638e98cbe2191b,
     type: 3}
   m_PrefabInstance: {fileID: 2296441262577270847}
   m_PrefabAsset: {fileID: 0}
---- !u!1839735485 &6654017486070853668 stripped
-Tilemap:
-  m_CorrespondingSourceObject: {fileID: 4866500653197455387, guid: 83b06b6a837cdb0459638e98cbe2191b,
-    type: 3}
-  m_PrefabInstance: {fileID: 2296441262577270847}
-  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd0f08367bc86d84dbe18c963a77cd96, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &2296441263303540455
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -250,7 +230,7 @@ PrefabInstance:
         type: 3}
       propertyPath: onDeath.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 6654017486619498104}
     - target: {fileID: 1735354607719109202, guid: ff71b8ffc340c2d4d96385186a0a121e,
         type: 3}
       propertyPath: onDeath.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
@@ -260,11 +240,6 @@ PrefabInstance:
         type: 3}
       propertyPath: onDeath.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
       value: UnityEngine.Object, UnityEngine
-      objectReference: {fileID: 0}
-    - target: {fileID: 1735354607719109202, guid: ff71b8ffc340c2d4d96385186a0a121e,
-        type: 3}
-      propertyPath: destroyOnDeath
-      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1735354608247704749, guid: ff71b8ffc340c2d4d96385186a0a121e,
         type: 3}
@@ -289,15 +264,3 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 2296441263303540455}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &795334593772050284 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 1501670856472750475, guid: ff71b8ffc340c2d4d96385186a0a121e,
-    type: 3}
-  m_PrefabInstance: {fileID: 2296441263303540455}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a3fa54310155d2d41b3fee8b17004efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 

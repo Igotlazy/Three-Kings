@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MoneyReward : MonoBehaviour
+[RequireComponent(typeof(HealthControl))]
+public class GoldReward : MonoBehaviour
 {
     [Header("Rewards:")]
     [Tooltip("First is base value, second is added range.")]
@@ -17,12 +18,12 @@ public class MoneyReward : MonoBehaviour
 
     [Header("Feedback:")]
     public int remainingMoney;
-    protected int divideNum;
+    int divideNum;
 
     [Header("References:")]
-    public GameObject moneyPrefab;
+    public GameObject geoPrefab;
 
-    protected void Start()
+    private void Awake()
     {
         SetUpHooks();
 
@@ -41,10 +42,21 @@ public class MoneyReward : MonoBehaviour
 
     protected virtual void SetUpHooks()
     {
+        HealthControl healthControl = GetComponent<HealthControl>();
+        healthControl.onHitDeath.AddListener(GiveReward);
+        if (giveOnHit)
+        {
+            healthControl.onHitAlive.AddListener(GivePercent);
+        }
 
+        divideNum = (int)healthControl.MaxHealth - 1;
+        if (divideNum <= 0)
+        {
+            divideNum = 1;
+        };
     }
 
-    protected void GiveReward(Attack attack)
+    private void GiveReward(Attack attack)
     {
         for(int i = 0; i < remainingMoney; i++)
         {
@@ -52,7 +64,7 @@ public class MoneyReward : MonoBehaviour
         }
     }
 
-    protected void GivePercent(Attack attack)
+    private void GivePercent(Attack attack)
     {
         int toSpawn = (int)(percentMoney / divideNum);
         if(toSpawn <= 0 && remainingMoney > 0)
@@ -70,7 +82,7 @@ public class MoneyReward : MonoBehaviour
 
     private void SpawnMoney()
     {
-        GameObject spawnedGeo = Instantiate(moneyPrefab, transform.position, Quaternion.identity);
+        GameObject spawnedGeo = Instantiate(geoPrefab, transform.position, Quaternion.identity);
         spawnedGeo.GetComponent<Rigidbody2D>().velocity = Random.insideUnitCircle.normalized * Random.Range(12f, 12f);
     }
 

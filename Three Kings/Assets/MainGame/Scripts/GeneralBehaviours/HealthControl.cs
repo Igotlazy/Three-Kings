@@ -32,7 +32,6 @@ public class HealthControl : MonoBehaviour
         }
     }
     public bool destroyOnDeath;
-    public GameObject objectToDestroy;
 
     [Header("Invincibility:")]
     public bool isInvincible;
@@ -55,9 +54,10 @@ public class HealthControl : MonoBehaviour
     public GameObject deathParticles;
     public GameObject aliveHitParticles;
 
-    public Action<Attack> onHitDeath;
-    public Action<Attack> onHitAlive;
-    public Action<Attack> onHit;
+    [Header("Hooks:")]
+    public DamageEvent onHitDeath;
+    public DamageEvent onHitAlive;
+    public DamageEvent onHit;
 
     [HideInInspector] public Attack lastAttack;
     [HideInInspector] public List<Collider2D> ignoreColliders;
@@ -68,7 +68,7 @@ public class HealthControl : MonoBehaviour
         CurrentHealth = MaxHealth;
     }
 
-    public virtual bool TakeDamage(Attack receivedAttack)
+    public virtual bool DealDamage(Attack receivedAttack)
     {
         if ((!IsInvincible || receivedAttack.ignoreInvincibility) && !undamagable && CurrentHealth > 0)
         {            
@@ -158,14 +158,10 @@ public class HealthControl : MonoBehaviour
         }
         if (destroyOnDeath)
         {
-            if(objectToDestroy == null)
-            {
-                Destroy(gameObject);
-            }
-            else
-            {
-                Destroy(objectToDestroy);
-            }
+            Destroy(gameObject);
         }
     }
+
+    [System.Serializable]
+    public class DamageEvent : UnityEvent<Attack>{ }
 }

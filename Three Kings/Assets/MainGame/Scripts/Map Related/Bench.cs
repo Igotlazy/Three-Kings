@@ -18,7 +18,7 @@ public class Bench : Interactable
     protected override void Start()
     {
         base.Start();
-        benchState = new StateSetter(this, null, null, BenchUpdate, null, BenchCancel, StateSetter.SetStrength.Medium);
+        benchState = new StateSetter(this, null, BenchUpdate, null, BenchCancel, StateSetter.SetStrength.Medium);
         restLogo.SetActive(false);
         swathe = Player.instance;
 

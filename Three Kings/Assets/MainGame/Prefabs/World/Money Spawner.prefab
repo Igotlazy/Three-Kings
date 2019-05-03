@@ -10,8 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 2239531184856206715}
   - component: {fileID: 2239531184856206714}
-  - component: {fileID: 7338006001733446071}
   - component: {fileID: 2239531184856206713}
+  - component: {fileID: 2239531184856206712}
   m_Layer: 11
   m_Name: Money Spawner
   m_TagString: Hitable
@@ -60,26 +60,6 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
---- !u!114 &7338006001733446071
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2239531184856206719}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4dd5a0ef58ba11f42a1c188e38286c19, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  moneyReward: {x: 30, y: 0}
-  chosenMoneyValue: 0
-  giveOnHit: 1
-  onHitPercent: 30.7
-  percentMoney: 0
-  remainingMoney: 0
-  moneyPrefab: {fileID: 8971390165565352615, guid: 7401c4b7b56ce4042a8be3b2a11265ed,
-    type: 3}
 --- !u!114 &2239531184856206713
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -94,15 +74,35 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHealth: 2
   currentHealth: 0
-  destroyOnDeath: 1
   isInvincible: 0
   invincibilityDuration: 0
   undamagable: 0
+  destroyOnDeath: 1
   deathParticles: {fileID: 0}
   aliveHitParticles: {fileID: 2946352301109042578, guid: e66978adcfe104343b48e091f29d4e25,
     type: 3}
   ignoreColliders: []
   sprite: {fileID: 2239531185511107923}
+--- !u!114 &2239531184856206712
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2239531184856206719}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 93188c73a55c8924db0ab434bed147f8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  moneyReward: {x: 30, y: 0}
+  chosenMoneyValue: 0
+  giveOnHit: 1
+  onHitPercent: 50
+  percentMoney: 0
+  remainingMoney: 0
+  geoPrefab: {fileID: 8971390165565352615, guid: 7401c4b7b56ce4042a8be3b2a11265ed,
+    type: 3}
 --- !u!1 &2239531185511107921
 GameObject:
   m_ObjectHideFlags: 0

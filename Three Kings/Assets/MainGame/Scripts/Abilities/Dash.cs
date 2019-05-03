@@ -24,9 +24,8 @@ public class Dash : Ability
     Vector2 currentVector;
 
     private StateSetter dashState;
-    public Action DashControl;
 
-    private Vector2 dashVector;
+    public Action DashControl;
 
     public override bool AbilityActivated
     {
@@ -54,9 +53,15 @@ public class Dash : Ability
     protected override void Awake()
     {
         base.Awake();
-        dashState = new StateSetter(this, DashInitiate, DashControl, null, DashFixedUpdate, CancelState, StateSetter.SetStrength.Weak);
+        dashState = new StateSetter(this, DashControl, null, DashMain, CancelState, StateSetter.SetStrength.Weak);
         currentDashCharge = maxDashCharge;
     }
+
+    protected override void Start()
+    {
+        base.Start();
+    }
+
 
     public override void AbilityUpdate()
     {
@@ -83,39 +88,37 @@ public class Dash : Ability
     {
         if (currentDashCharge > 0 && !isDashing && interCounter <= 0)
         {
-            Vector2 vec = Vector2.right;
+            Vector2 dashVec = Vector2.right;
 
             if (Input.GetAxisRaw("Vertical") > 0 || Input.GetAxisRaw("Horizontal") != 0)
             {
-                vec = new Vector2(Mathf.RoundToInt(Input.GetAxisRaw("Horizontal")), Mathf.RoundToInt(Mathf.Clamp(Input.GetAxisRaw("Vertical"), 0, 1))).normalized;
+                dashVec = new Vector2(Mathf.RoundToInt(Input.GetAxisRaw("Horizontal")), Mathf.RoundToInt(Mathf.Clamp(Input.GetAxisRaw("Vertical"), 0, 1))).normalized;
             }
             else
             {
                 if (aEntity.isLookingRight)
                 {
-                    vec.x = 1;
+                    dashVec.x = 1;
                 }
                 else
                 {
-                    vec.x = -1;
+                    dashVec.x = -1;
                 }
             }
 
-            vec = vec.normalized;
+            currentDashCharge -= 1;
+
+            dashVec = dashVec.normalized;
 
 
-            vec = onDashVectorCalculated?.Invoke(vec) ?? vec;
+            dashVec = onDashVectorCalculated?.Invoke(dashVec) ?? dashVec;
 
-            dashVector = vec;
-
-            aEntity.SetLivingEntityState(dashState, false);
+            DashInitiate(dashVec, dashSpeed, dashTime, true);
         }
     }
 
-    public void DashInitiate()
+    public void DashInitiate(Vector2 dashVector, float speed, float time, bool doLock)
     {
-        currentDashCharge -= 1;
-
         if (dashVector.x > 0 && !aEntity.isLookingRight)
         {
             aEntity.EntityFlip();
@@ -136,7 +139,10 @@ public class Dash : Ability
         }
 
 
-        interCounter = 0;
+        if (!doLock)
+        {
+            interCounter = 0;
+        }
 
         aEntity.lockFlip = true;
         isDashing = true;
@@ -144,6 +150,7 @@ public class Dash : Ability
         currentTime = 0;
 
         aEntity.InputAndPhysicsCleanUp();
+        aEntity.SetLivingEntityState(dashState, false);
         dashStartPos = aEntity.transform.position;
         setStartPos = false;
     }
@@ -153,7 +160,7 @@ public class Dash : Ability
     Vector3 dashStartPos;
     bool setStartPos;
 
-    private void DashFixedUpdate()
+    private void DashMain()
     {
         if (!setStartPos)
         {
@@ -196,6 +203,18 @@ public class Dash : Ability
         {
             currentTime += Time.fixedDeltaTime;
         }
+    }
+
+
+    private void PDashCancel()
+    {
+        aEntity.EntityVelocity = Vector2.zero;
+
+        interCounter = 0;
+        aEntity.lockFlip = false;
+
+        isDashing = false;
+        GroundSets();
     }
 
     private void GroundSets()

@@ -110,8 +110,8 @@ public class LivingEntity : MonoBehaviour
         groundMask = (1 << LayerMask.NameToLayer("Ground - Soft")) | (1 << LayerMask.NameToLayer("Ground - Hard"));
 
         healthControl = GetComponent<HealthControl>();
-        healthControl.onHitAlive += HitReactionOnAlive;
-        healthControl.onHitDeath += PhysicsCleanUpOnDeath;
+        healthControl.onHitAlive.AddListener(HitReactionOnAlive);
+        healthControl.onHitDeath.AddListener(PhysicsCleanUpOnDeath);
 
         knockbackControl = GetComponent<KnockbackControl>();
         //waitForNotPaused = new WaitUntil(() => !isPaused);
@@ -121,7 +121,7 @@ public class LivingEntity : MonoBehaviour
 
         currentTerminalVelocity = originalTerminalVelocity;
 
-        originalState = new StateSetter(this, null, BaseActionControl, BaseActionUpdate, BaseActionFixedUpdate);
+        originalState = new StateSetter(this, BaseActionControl, BaseActionUpdate, BaseActionFixedUpdate);
         SetLivingEntityState(originalState, true);
     }
 
@@ -149,19 +149,38 @@ public class LivingEntity : MonoBehaviour
         {
             if (currentController != null)
             {
-                currentController.CancelMethod?.Invoke();
+                currentController.CancelState();
             }
 
-            Debug.Log(gameObject.name + " State Change");
-            setter.SetUpMethod?.Invoke();
-
-            CurrControlMethod = setter.ControlMethod;
-            CurrActionUpdateMethod = setter.UpdateMethod;
-            CurrActionFixedMethod = setter.FixedUpdateMethod;
+            if (setter.nullsOverride)
+            {
+                CurrControlMethod = setter.ControlMethod;
+                CurrActionUpdateMethod = setter.UpdateMethod;
+                CurrActionFixedMethod = setter.FixedUpdateMethod;
+            }
+            else
+            {
+                if (setter.ControlMethod != null)
+                {
+                    CurrControlMethod = setter.ControlMethod;
+                }
+                if (setter.UpdateMethod != null)
+                {
+                    CurrActionUpdateMethod = setter.UpdateMethod;
+                }
+                if (setter.FixedUpdateMethod != null)
+                {
+                    CurrActionFixedMethod = setter.FixedUpdateMethod;
+                }
+            }
 
             currentController = setter;
 
             return true;
+        }
+        else
+        {
+            setter.CancelState();
         }
 
         return false;
@@ -456,7 +475,7 @@ public class LivingEntity : MonoBehaviour
         else if (attack.doesKnockback)
         {
             hitTimeCounter = 0;
-            SetLivingEntityState(new StateSetter(this, null, HitKnockControl, BaseActionUpdate, BaseActionFixedUpdate), false);
+            SetLivingEntityState(new StateSetter(this, HitKnockControl, BaseActionUpdate, BaseActionFixedUpdate), false);
 
             Vector2 knock = attack.knockback;
             if (attack.damageSource.transform.position.x > gameObject.transform.position.x)

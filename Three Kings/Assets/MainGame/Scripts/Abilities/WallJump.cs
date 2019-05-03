@@ -209,7 +209,6 @@ public class WallJump : Ability
         {
             aEntity.knockbackControl.StartKnockback(wallJumpForce, initialDur, subDur);
         }
-        aEntity.OriginalStateSet();
 
         //Flip Sets
         aEntity.FlipControlLockCounter = 0.2f;
